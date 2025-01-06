@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import Project from "../core/Project";
+import Project from "@core/Project";
 
 export default class DefaultProject extends Project {
   override start() {

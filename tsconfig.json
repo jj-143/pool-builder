@@ -18,7 +18,11 @@
     "allowSyntheticDefaultImports": true,
 
     /* Custom */
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "paths": {
+      "@core/*": ["./src/core/*"],
+      "~/*": ["./src/projects/*"]
+    }
   },
   "include": ["src"]
 }

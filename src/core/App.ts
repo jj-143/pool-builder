@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import Project from "./Project";
+
+import Project from "@core/Project";
 
 type UIControlState = "idle" | "viewport-camera" | "interacting";
 type AnimationState = "play" | "stop";

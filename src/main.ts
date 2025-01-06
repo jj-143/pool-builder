@@ -1,5 +1,6 @@
-import App from "./core/App";
-import DefaultProject from "./projects/default";
+import App from "@core/App";
+
+import DefaultProject from "~/default";
 
 const app = new App();
 const project = new DefaultProject();

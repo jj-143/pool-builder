@@ -1,0 +1,15 @@
+{
+  "importOrder": [
+    "^@core/(.*)$",
+    "^/(.*)$",
+    "^~/(?!assets/|shaders/)(.*)$",
+    "^~/shaders/(.*)$",
+    "^~/assets/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports"
+  ]
+}

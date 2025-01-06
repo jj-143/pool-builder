@@ -1,7 +1,8 @@
-import App from "./App";
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
 import * as THREE from "three";
-import TextureOverlay from "./utils/TextureOverlay";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+
+import App from "@core/App";
+import TextureOverlay from "@core/utils/TextureOverlay";
 
 export default class Project {
   scene: THREE.Scene;
@@ -41,7 +42,7 @@ export default class Project {
 
   attachControl(
     object: THREE.Object3D,
-    onChange?: THREE.EventListener<{}, "change", TransformControls>
+    onChange?: THREE.EventListener<{}, "change", TransformControls>,
   ) {
     const control = new TransformControls(this.camera, App.renderer.domElement);
     control.setSize(0.4);
@@ -73,7 +74,7 @@ export default class Project {
       50,
       window.innerWidth / window.innerHeight,
       0.01,
-      100
+      100,
     );
 
     camera.position.set(5, 5, 8);
