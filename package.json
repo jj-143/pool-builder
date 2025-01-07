@@ -1,5 +1,5 @@
 {
-  "name": "threejs-template",
+  "name": "pool-builder",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

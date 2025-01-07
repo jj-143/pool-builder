@@ -1,7 +1,7 @@
 import App from "@core/App";
 
-import DefaultProject from "~/default";
+import PoolBuilder from "~/PoolBuilder";
 
 const app = new App();
-const project = new DefaultProject();
+const project = new PoolBuilder();
 app.loadProject(project);
