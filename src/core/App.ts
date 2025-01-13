@@ -38,7 +38,7 @@ export default class App {
     container.appendChild(renderer.domElement);
 
     this.addShortcuts();
-    document.addEventListener("click", () => this.setUIControlState("idle"));
+    document.addEventListener("mouseup", () => this.setUIControlState("idle"));
   }
 
   async loadProject(project: Project) {
