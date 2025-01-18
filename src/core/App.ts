@@ -118,15 +118,15 @@ export default class App {
   }
 
   private addShortcuts() {
-    document.addEventListener("keydown", (event) => {
-      // Hide Overlays
-      if (event.code === "KeyZ" && event.altKey && event.shiftKey) {
+    document.addEventListener("keydown", (e) => {
+      // [Alt+Shift+Z] Hide Overlays
+      if (e.key.toLowerCase() === "z" && e.altKey && e.shiftKey) {
         this.toggleOverlays();
         return;
       }
 
-      // Play/Pause Animation State
-      if (event.code === "Space") {
+      // [Space] Play/Pause Animation State
+      if (e.key === " ") {
         this.toggleAnimationState();
         return;
       }
