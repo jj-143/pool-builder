@@ -72,6 +72,25 @@ export default class App {
     this.orbitControl.enabled = canControlOrbitControl;
   }
 
+  addClickEventListener(
+    callback: (raycaster: THREE.Raycaster, event: MouseEvent) => void,
+  ) {
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    const handler = (event: MouseEvent) => {
+      if (this.uiControlState != "idle") return;
+      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, this.project!.camera);
+      callback(raycaster, event);
+    };
+
+    document.addEventListener("mouseup", handler, { capture: true });
+    return () =>
+      document.removeEventListener("mouseup", handler, { capture: true });
+  }
+
   private addOrbitControls(camera: THREE.Camera) {
     const controls = new OrbitControls(camera, this.renderer.domElement);
     controls.mouseButtons = {
