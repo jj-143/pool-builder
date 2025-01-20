@@ -10,6 +10,7 @@ import waterVert from "~/shaders/water.vert?raw";
 
 import Model, { ModelEventListener } from "./Model";
 import type Node from "./Node";
+import type Wall from "./Wall";
 
 type Mode = "normal" | "edit";
 
@@ -18,7 +19,7 @@ export default class Pool implements ModelEventListener {
   selectedNode: Node | null = null;
   private nodeGap = 0.1;
   private model!: Model;
-  private waterSurface?: THREE.Mesh;
+  private surface?: THREE.Mesh;
   private unsubscribeClickEvent?: () => void;
 
   constructor() {
@@ -26,7 +27,7 @@ export default class Pool implements ModelEventListener {
   }
 
   init() {
-    this.waterSurface = this.initWaterSurface();
+    this.surface = this.initSurface();
     App.instance.project?.scene.add(this.model.root);
     this.attachShortcuts();
   }
@@ -39,7 +40,7 @@ export default class Pool implements ModelEventListener {
     switch (mode) {
       case "edit":
         this.unsubscribeClickEvent = App.instance.addClickEventListener(
-          this.handleWaterSurfaceClick.bind(this),
+          this.handleSurfaceClick.bind(this),
         );
         break;
       case "normal":
@@ -90,7 +91,7 @@ export default class Pool implements ModelEventListener {
     uniforms.nPoints.value = nPoints;
   }
 
-  private initWaterSurface() {
+  private initSurface() {
     const geometry = new THREE.PlaneGeometry(
       config.POOL_SIZE,
       config.POOL_SIZE,
@@ -109,8 +110,8 @@ export default class Pool implements ModelEventListener {
     return mesh;
   }
 
-  private handleWaterSurfaceClick(rc: THREE.Raycaster, { button }: MouseEvent) {
-    if (!this.waterSurface) throw Error("Water surface has not set");
+  private handleSurfaceClick(rc: THREE.Raycaster, { button }: MouseEvent) {
+    if (!this.surface) throw Error("Water surface has not set");
 
     // Hover on Node
     {
@@ -128,6 +129,21 @@ export default class Pool implements ModelEventListener {
         if (button == 2) {
           this.clearSelection();
           this.model.removeNode(nodeOnHover);
+          return;
+        }
+      }
+    }
+
+    // Hover on Wall
+    {
+      const wallOnHover = rc.intersectObjects(this.model.walls, false)[0]
+        ?.object as Wall | undefined;
+
+      if (wallOnHover) {
+        // Split Wall in half
+        if (button == 0) {
+          const node = this.model.splitWall(wallOnHover);
+          this.selectNode(node);
           return;
         }
       }
@@ -153,7 +169,7 @@ export default class Pool implements ModelEventListener {
     // On empty area, no selection
     if (button == 0) {
       // Append Node at the end
-      const intersect = rc.intersectObject(this.waterSurface);
+      const intersect = rc.intersectObject(this.surface);
       if (intersect.length) {
         const point = intersect[0].point;
         this.appendNode(point);
