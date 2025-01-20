@@ -38,7 +38,7 @@ export default class App {
     container.appendChild(renderer.domElement);
 
     this.addShortcuts();
-    document.addEventListener("click", () => this.setUIControlState("idle"));
+    document.addEventListener("mouseup", () => this.setUIControlState("idle"));
   }
 
   async loadProject(project: Project) {
@@ -72,8 +72,32 @@ export default class App {
     this.orbitControl.enabled = canControlOrbitControl;
   }
 
+  addClickEventListener(
+    callback: (raycaster: THREE.Raycaster, event: MouseEvent) => void,
+  ) {
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    const handler = (event: MouseEvent) => {
+      if (this.uiControlState != "idle") return;
+      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, this.project!.camera);
+      callback(raycaster, event);
+    };
+
+    document.addEventListener("mouseup", handler, { capture: true });
+    return () =>
+      document.removeEventListener("mouseup", handler, { capture: true });
+  }
+
   private addOrbitControls(camera: THREE.Camera) {
     const controls = new OrbitControls(camera, this.renderer.domElement);
+    controls.mouseButtons = {
+      LEFT: null,
+      MIDDLE: THREE.MOUSE.ROTATE,
+      RIGHT: null,
+    };
     controls.minDistance = 0.01;
     controls.maxDistance = 1000;
     controls.target.set(0, 1, 0);
@@ -113,15 +137,15 @@ export default class App {
   }
 
   private addShortcuts() {
-    document.addEventListener("keydown", (event) => {
-      // Hide Overlays
-      if (event.code === "KeyZ" && event.altKey && event.shiftKey) {
+    document.addEventListener("keydown", (e) => {
+      // [Alt+Shift+Z] Hide Overlays
+      if (e.key.toLowerCase() === "z" && e.altKey && e.shiftKey) {
         this.toggleOverlays();
         return;
       }
 
-      // Play/Pause Animation State
-      if (event.code === "Space") {
+      // [Space] Play/Pause Animation State
+      if (e.key === " ") {
         this.toggleAnimationState();
         return;
       }
