@@ -1,17 +1,23 @@
 import * as THREE from "three";
 
+import App from "@core/App";
 import Project from "@core/Project";
 
 import Pool from "~/lib/Pool";
+import { DropHelper } from "~/lib/Pool/Helpers";
 import { uniforms } from "~/lib/shared";
 import { createSphere } from "~/utils";
 
 export default class PoolBuilder extends Project {
   pool: Pool;
+  clock: THREE.Clock;
+  dropHelper: DropHelper;
 
   constructor() {
     super();
     this.pool = new Pool();
+    this.clock = new THREE.Clock();
+    this.dropHelper = new DropHelper(this.pool);
   }
 
   override async load() {
@@ -25,6 +31,18 @@ export default class PoolBuilder extends Project {
     this.pool.init();
     this.initSun();
     this.drawPlus();
+    this.dropHelper.attachDragWater();
+    App.renderer.autoClear = false; // For WaterSimulation
+  }
+
+  override animate() {
+    if (App.instance.animationState === "play") {
+      if (this.clock.getElapsedTime() > 1 / 120) {
+        this.pool.sim.stepSimulation();
+        this.clock.start();
+      }
+    }
+    this.render();
   }
 
   override toggleOverlays() {

@@ -2,10 +2,12 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
+import WaterSimulation from "~/WaterSimulation";
 import { config } from "~/config";
+import { StencilHelper } from "~/lib/Pool/Helpers";
 import { uniforms } from "~/lib/shared";
 
-import nodeViewerFrag from "~/shaders/node-viewer.frag?raw";
+import waterFrag from "~/shaders/water.frag?raw";
 import waterVert from "~/shaders/water.vert?raw";
 
 import Model, { ModelEventListener } from "./Model";
@@ -17,17 +19,27 @@ type Mode = "normal" | "edit";
 export default class Pool implements ModelEventListener {
   mode: Mode = "normal";
   selectedNode: Node | null = null;
+
   private nodeGap = 0.1;
   private model!: Model;
-  private surface?: THREE.Mesh;
   private unsubscribeClickEvent?: () => void;
+
+  sim: WaterSimulation;
+  surface?: THREE.Mesh;
+  private stencil?: THREE.Mesh;
+  private stencilHelper: StencilHelper;
 
   constructor() {
     this.model = new Model(this);
+    this.sim = new WaterSimulation();
+    this.stencilHelper = new StencilHelper(this);
+    uniforms["water"].value = this.sim.target.texture;
   }
 
   init() {
     this.surface = this.initSurface();
+    this.updateStencil();
+
     App.instance.project?.scene.add(this.model.root);
     this.attachShortcuts();
   }
@@ -89,25 +101,44 @@ export default class Pool implements ModelEventListener {
   onChange(start: number, points: THREE.Vector2[], nPoints: number): void {
     uniforms["points"].value.splice(start, points.length, ...points);
     uniforms["nPoints"].value = nPoints;
+    this.updateStencil();
   }
 
   private initSurface() {
     const geometry = new THREE.PlaneGeometry(
       config.POOL_SIZE,
       config.POOL_SIZE,
+      500,
+      500,
     );
     geometry.rotateX(-Math.PI / 2);
 
     const material = new THREE.ShaderMaterial({
       vertexShader: waterVert,
-      fragmentShader: nodeViewerFrag,
+      fragmentShader: waterFrag,
       uniforms: uniforms,
+
+      stencilRef: 1,
+      stencilWrite: true,
+      stencilFunc: THREE.EqualStencilFunc,
     });
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.setY(config.SURFACE_Y);
+    mesh.renderOrder = 1; // after stencil
     App.instance.project!.scene.add(mesh);
     return mesh;
+  }
+
+  /**
+   * @remarks: Recreate the stencil mesh for now.
+   */
+  private updateStencil() {
+    this.stencil?.removeFromParent();
+    const points = uniforms["points"].value.slice(0, uniforms["nPoints"].value);
+    this.stencil = this.stencilHelper.create(points);
+    this.sim.stencil = this.stencil;
+    App.instance.project!.scene.add(this.stencil);
   }
 
   private handleSurfaceClick(rc: THREE.Raycaster, { button }: MouseEvent) {
