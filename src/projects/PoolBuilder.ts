@@ -23,6 +23,7 @@ export default class PoolBuilder extends Project {
   override async load() {
     await super.load();
     await this.loadTextures();
+    await this.loadGrass();
   }
 
   override start() {
@@ -72,6 +73,22 @@ export default class PoolBuilder extends Project {
 
     uniforms["tile"].value = texture;
     uniforms["tileNrm"].value = normalTexture;
+  }
+
+  private async loadGrass() {
+    const col = (await import("~/assets/Grass004/col.jpg")).default;
+    const nrm = (await import("~/assets/Grass004/nrm.jpg")).default;
+
+    const texture = new THREE.TextureLoader().load(col);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+    const normalTexture = new THREE.TextureLoader().load(nrm);
+    normalTexture.wrapS = THREE.RepeatWrapping;
+    normalTexture.wrapT = THREE.RepeatWrapping;
+
+    uniforms["world"].value = texture;
+    uniforms["worldNrm"].value = normalTexture;
   }
 
   private drawPlus() {

@@ -20,4 +20,9 @@ export const uniforms = {
   tile: { value: null as THREE.Texture | null },
   tileNrm: { value: null as THREE.Texture | null },
   tileRepeat: { value: config.TILE_REPEAT },
+
+  world: { value: null as THREE.Texture | null },
+  worldNrm: { value: null as THREE.Texture | null },
+  worldSize: { value: config.WORLD_SIZE },
+  worldRepeat: { value: config.WORLD_REPEAT },
 } satisfies THREE.ShaderMaterial["uniforms"];

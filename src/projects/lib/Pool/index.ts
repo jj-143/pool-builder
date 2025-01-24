@@ -9,6 +9,8 @@ import { uniforms } from "~/lib/shared";
 
 import waterFrag from "~/shaders/water.frag?raw";
 import waterVert from "~/shaders/water.vert?raw";
+import worldFrag from "~/shaders/world.frag?raw";
+import worldVert from "~/shaders/world.vert?raw";
 
 import Model, { ModelEventListener } from "./Model";
 import type Node from "./Node";
@@ -26,6 +28,7 @@ export default class Pool implements ModelEventListener {
 
   sim: WaterSimulation;
   surface?: THREE.Mesh;
+  private world?: THREE.Mesh;
   private stencil?: THREE.Mesh;
   private stencilHelper: StencilHelper;
 
@@ -38,6 +41,7 @@ export default class Pool implements ModelEventListener {
 
   init() {
     this.surface = this.initSurface();
+    this.world = this.initWorld();
     this.updateStencil();
 
     App.instance.project?.scene.add(this.model.root);
@@ -52,7 +56,7 @@ export default class Pool implements ModelEventListener {
     switch (mode) {
       case "edit":
         this.unsubscribeClickEvent = App.instance.addClickEventListener(
-          this.handleSurfaceClick.bind(this),
+          this.handleWorldClick.bind(this),
         );
         break;
       case "normal":
@@ -130,6 +134,29 @@ export default class Pool implements ModelEventListener {
     return mesh;
   }
 
+  private initWorld() {
+    const geometry = new THREE.PlaneGeometry(
+      config.WORLD_SIZE,
+      config.WORLD_SIZE,
+    );
+    geometry.rotateX(-Math.PI / 2);
+
+    const material = new THREE.ShaderMaterial({
+      vertexShader: worldVert,
+      fragmentShader: worldFrag,
+      uniforms: uniforms,
+
+      stencilRef: 1,
+      stencilWrite: true,
+      stencilFunc: THREE.NotEqualStencilFunc,
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.renderOrder = 1; // after stencil
+    App.instance.project!.scene.add(mesh);
+    return mesh;
+  }
+
   /**
    * @remarks: Recreate the stencil mesh for now.
    */
@@ -141,8 +168,8 @@ export default class Pool implements ModelEventListener {
     App.instance.project!.scene.add(this.stencil);
   }
 
-  private handleSurfaceClick(rc: THREE.Raycaster, { button }: MouseEvent) {
-    if (!this.surface) throw Error("Water surface has not set");
+  private handleWorldClick(rc: THREE.Raycaster, { button }: MouseEvent) {
+    if (!this.world) throw Error("World has not set");
 
     // Hover on Node
     {
@@ -200,7 +227,7 @@ export default class Pool implements ModelEventListener {
     // On empty area, no selection
     if (button == 0) {
       // Append Node at the end
-      const intersect = rc.intersectObject(this.surface);
+      const intersect = rc.intersectObject(this.world);
       if (intersect.length) {
         const point = intersect[0].point;
         this.appendNode(point);
