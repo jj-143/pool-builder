@@ -21,9 +21,10 @@ export default class App {
   static instance: App;
   static renderer: THREE.WebGLRenderer;
 
-  constructor() {
+  constructor(parameters?: THREE.WebGLRendererParameters) {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
+      ...parameters,
     });
 
     this.renderer = renderer;
