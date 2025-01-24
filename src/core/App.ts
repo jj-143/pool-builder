@@ -109,6 +109,10 @@ export default class App {
       }
     });
 
+    controls.addEventListener("end", () => {
+      this.setUIControlState("idle");
+    });
+
     this.orbitControl = controls;
   }
 
