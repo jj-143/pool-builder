@@ -2,7 +2,7 @@
   "name": "pool-builder",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -11,6 +11,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.1",
     "@types/three": "^0.171.0",
+    "typescript": "^5.7.3",
     "vite": "^5.4.4"
   }
 }
