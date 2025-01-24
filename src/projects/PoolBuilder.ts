@@ -33,9 +33,9 @@ export default class PoolBuilder extends Project {
   }
 
   private initSun() {
-    const sun = createSphere(uniforms.sun.value);
+    const sun = createSphere(uniforms["sun"].value);
     this.attachControl(sun, () => {
-      uniforms.sun.value.copy(sun.position);
+      uniforms["sun"].value.copy(sun.position);
     });
     this.uiGroup.add(sun);
   }
@@ -52,8 +52,8 @@ export default class PoolBuilder extends Project {
     normalTexture.wrapS = THREE.RepeatWrapping;
     normalTexture.wrapT = THREE.RepeatWrapping;
 
-    uniforms.tile.value = texture;
-    uniforms.tileNrm.value = normalTexture;
+    uniforms["tile"].value = texture;
+    uniforms["tileNrm"].value = normalTexture;
   }
 
   private drawPlus() {

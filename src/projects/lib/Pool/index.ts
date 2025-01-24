@@ -87,8 +87,8 @@ export default class Pool implements ModelEventListener {
    * @implements {ModelEventListener}
    */
   onChange(start: number, points: THREE.Vector2[], nPoints: number): void {
-    uniforms.points.value.splice(start, points.length, ...points);
-    uniforms.nPoints.value = nPoints;
+    uniforms["points"].value.splice(start, points.length, ...points);
+    uniforms["nPoints"].value = nPoints;
   }
 
   private initSurface() {

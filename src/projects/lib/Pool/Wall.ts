@@ -7,7 +7,7 @@ import wallVert from "~/shaders/wall.vert?raw";
 
 import type Node from "./Node";
 
-const GEOMETRY = new THREE.PlaneGeometry(1, uniforms.poolDepth.value);
+const GEOMETRY = new THREE.PlaneGeometry(1, uniforms["poolDepth"].value);
 
 const MATERIAL = new THREE.ShaderMaterial({
   side: THREE.DoubleSide,
@@ -37,7 +37,7 @@ export default class Wall extends THREE.Mesh<
     const center = p0.point.clone().add(p1.point).divideScalar(2);
 
     this.scale.setX(width);
-    this.position.set(center.x, -uniforms.poolDepth.value / 2, center.y);
+    this.position.set(center.x, -uniforms["poolDepth"].value / 2, center.y);
     this.rotation.set(0, Math.PI - angle, 0);
 
     this.material.uniforms["width"].value = width;
