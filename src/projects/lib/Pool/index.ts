@@ -112,8 +112,8 @@ export default class Pool implements ModelEventListener {
     const geometry = new THREE.PlaneGeometry(
       config.POOL_SIZE,
       config.POOL_SIZE,
-      500,
-      500,
+      200,
+      200,
     );
     geometry.rotateX(-Math.PI / 2);
 

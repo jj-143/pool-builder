@@ -8,8 +8,8 @@ import dropWaterShader from "./dropWater.frag?raw";
 import updateShader from "./update.frag?raw";
 import vertexShader from "./vertex.vert?raw";
 
-const TEXTURE_SIZE = 512;
-const DELTA = 1 / 512;
+const TEXTURE_SIZE = 256;
+const DELTA = 1 / 256;
 
 export default class WaterSimulation {
   step = 0;
