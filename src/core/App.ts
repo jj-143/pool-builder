@@ -111,8 +111,13 @@ export default class App {
       }
     });
 
+    // Manual reset for end of scroll
     controls.addEventListener("end", () => {
-      this.setUIControlState("idle");
+      // Strictly check if it's in `viewport-camera` state.
+      // Even though mouseButtons.LEFT is `null`, `end` event is still fired
+      if (this.uiControlState === "viewport-camera") {
+        this.setUIControlState("idle");
+      }
     });
 
     this.orbitControl = controls;
