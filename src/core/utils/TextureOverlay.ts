@@ -29,7 +29,6 @@ export default class TextureOverlay {
 
   render() {
     App.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
-    App.renderer.clear();
     this.sprites.forEach((sprite) => {
       App.renderer.render(sprite, this.camera);
     });
