@@ -48,6 +48,7 @@ export default class App {
     this.setupHelpers(project);
     window.addEventListener("resize", this.onWindowResize.bind(this));
     project.start();
+    this.renderer.setAnimationLoop(project.animate.bind(project));
   }
 
   toggleOverlays() {
