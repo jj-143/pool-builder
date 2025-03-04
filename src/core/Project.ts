@@ -15,7 +15,6 @@ export default class Project {
     this.uiGroup = new THREE.Group();
     this.scene.add(this.uiGroup);
     this.textureOverlay = new TextureOverlay();
-    App.renderer.setAnimationLoop(this.animate.bind(this));
   }
 
   animate() {
@@ -28,10 +27,10 @@ export default class Project {
   }
 
   render() {
+    App.renderer.render(this.scene, this.camera);
     if (this.uiGroup.visible) {
       this.textureOverlay.render();
     }
-    App.renderer.render(this.scene, this.camera);
   }
 
   start() {}

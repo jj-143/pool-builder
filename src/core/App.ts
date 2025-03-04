@@ -48,6 +48,7 @@ export default class App {
     this.setupHelpers(project);
     window.addEventListener("resize", this.onWindowResize.bind(this));
     project.start();
+    this.renderer.setAnimationLoop(project.animate.bind(project));
   }
 
   toggleOverlays() {
@@ -110,8 +111,13 @@ export default class App {
       }
     });
 
+    // Manual reset for end of scroll
     controls.addEventListener("end", () => {
-      this.setUIControlState("idle");
+      // Strictly check if it's in `viewport-camera` state.
+      // Even though mouseButtons.LEFT is `null`, `end` event is still fired
+      if (this.uiControlState === "viewport-camera") {
+        this.setUIControlState("idle");
+      }
     });
 
     this.orbitControl = controls;
