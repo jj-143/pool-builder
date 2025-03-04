@@ -1,4 +1,4 @@
-export const config = {
+const config = {
   MAX_POINTS: 50,
   POOL_SIZE: 2,
   POOL_DEPTH: 20 / 12 / 4,
@@ -8,3 +8,5 @@ export const config = {
   WORLD_SIZE: 4,
   WORLD_REPEAT: 1 / 4,
 };
+
+export default config;

@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
-import { config } from "~/config";
+import config from "~/config";
 import StencilHelper from "~/helpers/StencilHelper";
 import WaterSimulation from "~/lib/WaterSimulation";
 import uniforms from "~/uniforms";

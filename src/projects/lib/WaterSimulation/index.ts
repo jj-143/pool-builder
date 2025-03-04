@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
-import { config } from "~/config";
+import config from "~/config";
 
 import dropWaterShader from "./dropWater.frag?raw";
 import updateShader from "./update.frag?raw";

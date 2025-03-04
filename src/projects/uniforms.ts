@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { config } from "~/config";
+import config from "~/config";
 
 const uniforms = {
   nPoints: { value: 0 },
