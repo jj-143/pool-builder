@@ -2,9 +2,9 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
-import WaterSimulation from "~/WaterSimulation";
 import { config } from "~/config";
 import { StencilHelper } from "~/lib/Pool/Helpers";
+import WaterSimulation from "~/lib/WaterSimulation";
 import { uniforms } from "~/lib/shared";
 
 import waterFrag from "~/shaders/water.frag?raw";
