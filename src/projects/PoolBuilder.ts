@@ -3,8 +3,8 @@ import * as THREE from "three";
 import App from "@core/App";
 import Project from "@core/Project";
 
+import DropHelper from "~/helpers/DropHelper";
 import Pool from "~/lib/Pool";
-import { DropHelper } from "~/lib/Pool/Helpers";
 import uniforms from "~/uniforms";
 import { createSphere } from "~/utils";
 
