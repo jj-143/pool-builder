@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { config } from "~/config";
 
-export const uniforms = {
+const uniforms = {
   nPoints: { value: 0 },
   points: {
     value: Array(config.MAX_POINTS).fill(
@@ -26,3 +26,5 @@ export const uniforms = {
   worldSize: { value: config.WORLD_SIZE },
   worldRepeat: { value: config.WORLD_REPEAT },
 } satisfies THREE.ShaderMaterial["uniforms"];
+
+export default uniforms;

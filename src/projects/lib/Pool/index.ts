@@ -5,7 +5,7 @@ import App from "@core/App";
 import { config } from "~/config";
 import { StencilHelper } from "~/lib/Pool/Helpers";
 import WaterSimulation from "~/lib/WaterSimulation";
-import { uniforms } from "~/lib/shared";
+import uniforms from "~/uniforms";
 
 import waterFrag from "~/shaders/water.frag?raw";
 import waterVert from "~/shaders/water.vert?raw";

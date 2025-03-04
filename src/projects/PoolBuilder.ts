@@ -5,7 +5,7 @@ import Project from "@core/Project";
 
 import Pool from "~/lib/Pool";
 import { DropHelper } from "~/lib/Pool/Helpers";
-import { uniforms } from "~/lib/shared";
+import uniforms from "~/uniforms";
 import { createSphere } from "~/utils";
 
 export default class PoolBuilder extends Project {

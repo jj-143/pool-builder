@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { uniforms } from "~/lib/shared";
+import uniforms from "~/uniforms";
 
 import wallFrag from "~/shaders/wall.frag?raw";
 import wallVert from "~/shaders/wall.vert?raw";
