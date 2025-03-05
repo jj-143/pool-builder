@@ -3,11 +3,12 @@ import * as THREE from "three";
 import App from "@core/App";
 import Project from "@core/Project";
 
+import assets from "~/assets";
 import DrawHelper from "~/helpers/DrawHelper";
 import DropHelper from "~/helpers/DropHelper";
 import Pool from "~/lib/Pool";
 import uniforms from "~/uniforms";
-import { createSphere } from "~/utils";
+import { createSphere, importTexture } from "~/utils";
 
 export default class PoolBuilder extends Project {
   pool: Pool;
@@ -26,7 +27,6 @@ export default class PoolBuilder extends Project {
   override async load() {
     await super.load();
     await this.loadTextures();
-    await this.loadGrass();
   }
 
   override start() {
@@ -66,34 +66,11 @@ export default class PoolBuilder extends Project {
   }
 
   private async loadTextures() {
-    const col = (await import("~/assets/Tiles132A/col.jpg")).default;
-    const nrm = (await import("~/assets/Tiles132A/nrm.jpg")).default;
-
-    const texture = new THREE.TextureLoader().load(col);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-
-    const normalTexture = new THREE.TextureLoader().load(nrm);
-    normalTexture.wrapS = THREE.RepeatWrapping;
-    normalTexture.wrapT = THREE.RepeatWrapping;
-
-    uniforms["tileCol"].value = texture;
-    uniforms["tileNrm"].value = normalTexture;
-  }
-
-  private async loadGrass() {
-    const col = (await import("~/assets/Grass004/col.jpg")).default;
-    const nrm = (await import("~/assets/Grass004/nrm.jpg")).default;
-
-    const texture = new THREE.TextureLoader().load(col);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-
-    const normalTexture = new THREE.TextureLoader().load(nrm);
-    normalTexture.wrapS = THREE.RepeatWrapping;
-    normalTexture.wrapT = THREE.RepeatWrapping;
-
-    uniforms["worldCol"].value = texture;
-    uniforms["worldNrm"].value = normalTexture;
+    return Promise.all([
+      importTexture(assets.tileCol, "tileCol"),
+      importTexture(assets.tileNrm, "tileNrm"),
+      importTexture(assets.worldCol, "worldCol"),
+      importTexture(assets.worldNrm, "worldNrm"),
+    ]);
   }
 }

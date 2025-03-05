@@ -1,0 +1,11 @@
+import worldCol from "./Grass004/col.jpg";
+import worldNrm from "./Grass004/nrm.jpg";
+import tileCol from "./Tiles132A/col.jpg";
+import tileNrm from "./Tiles132A/nrm.jpg";
+
+export default {
+  tileCol,
+  tileNrm,
+  worldCol,
+  worldNrm,
+};
