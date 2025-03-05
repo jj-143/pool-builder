@@ -27,9 +27,8 @@ export default class Pool implements ModelEventListener {
   private unsubscribeClickEvent?: () => void;
 
   sim: WaterSimulation;
-  surface?: THREE.Mesh;
-  private world?: THREE.Mesh;
-  private worldBoundary?: THREE.LineSegments;
+  private world!: THREE.Mesh;
+  private worldBoundary!: THREE.LineSegments;
   private stencil?: THREE.Mesh;
   private stencilHelper: StencilHelper;
 
@@ -41,7 +40,7 @@ export default class Pool implements ModelEventListener {
   }
 
   init() {
-    this.surface = this.initSurface();
+    this.initSurface();
     this.world = this.initWorld();
     this.worldBoundary = this.initWorldBoundary();
     this.updateStencil();
@@ -72,7 +71,7 @@ export default class Pool implements ModelEventListener {
     this.model.nodes.forEach((node) => {
       node.visible = this.mode === "edit";
     });
-    this.worldBoundary!.visible = this.mode === "edit";
+    this.worldBoundary.visible = this.mode === "edit";
   }
 
   appendNode(origin: THREE.Vector3) {
@@ -187,8 +186,6 @@ export default class Pool implements ModelEventListener {
   }
 
   private handleWorldClick(rc: THREE.Raycaster, { button }: MouseEvent) {
-    if (!this.world) throw Error("World has not set");
-
     // Hover on Node
     {
       const nodeOnHover = rc.intersectObjects(this.model.nodes, false)[0]
