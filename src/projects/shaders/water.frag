@@ -1,5 +1,5 @@
 uniform sampler2D water;
-uniform sampler2D tile;
+uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
 
 uniform vec3 sun;
@@ -39,7 +39,7 @@ void main() {
   coords = vec2(hit.x, hit.z) / tileRepeat;
 
   vec3 light = normalize(sun - hit);
-  vec3 col = texture2D(tile, coords).rgb;
+  vec3 col = texture2D(tileCol, coords).rgb;
   vec3 nrm = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);
 
   mat3 TBN = mat3(tangent, bitangent, hitNormal);

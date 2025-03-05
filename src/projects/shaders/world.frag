@@ -2,7 +2,7 @@ varying vec3 vPosition;
 varying vec2 vUv;
 
 uniform vec3 sun;
-uniform sampler2D world;
+uniform sampler2D worldCol;
 uniform sampler2D worldNrm;
 uniform float worldRepeat;
 uniform float worldSize;
@@ -13,7 +13,7 @@ float AMBIENT = 0.2;
 void main() {
   vec2 coords = fract(vUv * worldSize / worldRepeat);
 
-  vec3 col = texture2D(world, coords).rgb;
+  vec3 col = texture2D(worldCol, coords).rgb;
   vec3 nrm = normalize(texture2D(worldNrm, coords).rgb * 2.0 - 1.0);
   vec3 normal = vec3(nrm.x, nrm.z, -nrm.y);
 

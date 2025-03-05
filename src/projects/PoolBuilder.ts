@@ -77,7 +77,7 @@ export default class PoolBuilder extends Project {
     normalTexture.wrapS = THREE.RepeatWrapping;
     normalTexture.wrapT = THREE.RepeatWrapping;
 
-    uniforms["tile"].value = texture;
+    uniforms["tileCol"].value = texture;
     uniforms["tileNrm"].value = normalTexture;
   }
 
@@ -93,7 +93,7 @@ export default class PoolBuilder extends Project {
     normalTexture.wrapS = THREE.RepeatWrapping;
     normalTexture.wrapT = THREE.RepeatWrapping;
 
-    uniforms["world"].value = texture;
+    uniforms["worldCol"].value = texture;
     uniforms["worldNrm"].value = normalTexture;
   }
 }

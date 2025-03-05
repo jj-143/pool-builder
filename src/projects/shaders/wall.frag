@@ -3,7 +3,7 @@ uniform vec3 sun;
 uniform float width;
 uniform float poolDepth;
 
-uniform sampler2D tile;
+uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
 uniform float tileRepeat;
 
@@ -21,7 +21,7 @@ void main() {
 
   vec2 coords = fract(vUv * vec2(width, poolDepth) / tileRepeat);
 
-  vec4 tileColor = texture2D(tile, coords);
+  vec4 tileColor = texture2D(tileCol, coords);
   vec3 tileNormal = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);
   vec3 normal = normalize(TBN * tileNormal.rgb);
 
