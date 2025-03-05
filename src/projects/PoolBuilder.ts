@@ -55,7 +55,7 @@ export default class PoolBuilder extends Project {
 
   override toggleOverlays() {
     super.toggleOverlays();
-    this.pool.toggleMode();
+    this.pool.toggleMode("normal");
   }
 
   private initSun() {

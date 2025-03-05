@@ -29,6 +29,7 @@ export default class Pool implements ModelEventListener {
   sim: WaterSimulation;
   surface?: THREE.Mesh;
   private world?: THREE.Mesh;
+  private worldBoundary?: THREE.LineSegments;
   private stencil?: THREE.Mesh;
   private stencilHelper: StencilHelper;
 
@@ -42,6 +43,7 @@ export default class Pool implements ModelEventListener {
   init() {
     this.surface = this.initSurface();
     this.world = this.initWorld();
+    this.worldBoundary = this.initWorldBoundary();
     this.updateStencil();
 
     App.instance.project?.scene.add(this.model.root);
@@ -70,6 +72,7 @@ export default class Pool implements ModelEventListener {
     this.model.nodes.forEach((node) => {
       node.visible = this.mode === "edit";
     });
+    this.worldBoundary!.visible = this.mode === "edit";
   }
 
   appendNode(origin: THREE.Vector3) {
@@ -155,6 +158,21 @@ export default class Pool implements ModelEventListener {
     mesh.renderOrder = 1; // after stencil
     App.instance.project!.scene.add(mesh);
     return mesh;
+  }
+
+  private initWorldBoundary() {
+    App.instance.gridHelper?.dispose();
+    App.instance.gridHelper?.removeFromParent();
+
+    const lines = new THREE.GridHelper(config.POOL_SIZE, 1, "white", "white");
+
+    lines.renderOrder = 10;
+    lines.material.linewidth = 8;
+    lines.material.depthTest = false;
+    lines.visible = this.mode === "edit";
+
+    App.instance.project!.scene.add(lines);
+    return lines;
   }
 
   /**
