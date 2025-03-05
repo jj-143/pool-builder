@@ -25,6 +25,8 @@ const uniforms = {
   worldNrm: { value: null as THREE.Texture | null },
   worldSize: { value: config.WORLD_SIZE },
   worldRepeat: { value: config.WORLD_REPEAT },
+
+  envMap: { value: null as THREE.Texture | null },
 } satisfies THREE.ShaderMaterial["uniforms"];
 
 export default uniforms;

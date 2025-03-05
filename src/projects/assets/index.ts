@@ -1,3 +1,4 @@
+import envMap from "./DaySkyHDRI027B_4K-TONEMAPPED.jpg";
 import worldCol from "./Grass004/col.jpg";
 import worldNrm from "./Grass004/nrm.jpg";
 import tileCol from "./Tiles132A/col.jpg";
@@ -8,4 +9,5 @@ export default {
   tileNrm,
   worldCol,
   worldNrm,
+  envMap,
 };

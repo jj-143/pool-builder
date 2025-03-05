@@ -5,7 +5,7 @@ const config = {
   SURFACE_Y: -1 / 48,
   TILE_REPEAT: 6 / 12,
 
-  WORLD_SIZE: 4,
+  WORLD_SIZE: 2000,
   WORLD_REPEAT: 1 / 4,
 };
 

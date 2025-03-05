@@ -1,6 +1,7 @@
 uniform sampler2D water;
 uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
+uniform sampler2D envMap;
 
 uniform vec3 sun;
 
@@ -15,6 +16,12 @@ uniform float tileRepeat;
 
 vec3 WATER_COLOR = vec3(0.8, 1.0, 1.1);
 float LIGHT_INTENSITY = 1.0;
+
+vec2 directionToEquirectangularUV(vec3 dir) {
+    float u = atan(dir.z, dir.x) / (2.0 * 3.14159265) + 0.5;
+    float v = asin(dir.y) / 3.14159265 + 0.5;
+    return vec2(u, v);
+}
 
 void main() {
   vec3 color;
@@ -60,8 +67,9 @@ void main() {
 
   vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, lightSurface)); // abs for underwater
   float specSurface = LIGHT_INTENSITY * pow(clamp(dot(lightSurface, rSurface), 0.0, 1.0) , 1500.0);
-  vec3 colReflection = diffSurface * 0.2 + specSurface * 10.0 * vec3(1);
-
+  vec2 uv = directionToEquirectangularUV(rSurface);
+  vec3 env = texture2D(envMap, fract(uv)).rgb;
+  vec3 colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;
 
   /** ------------------------------------------------------------
    *  Fresnel mix with F0 as 2%

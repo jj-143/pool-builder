@@ -36,6 +36,7 @@ export default class PoolBuilder extends Project {
     this.camera.lookAt(0, 1, 0);
     this.pool.init();
     this.initSun();
+    this.initEnvironmentMap();
 
     /* Helpers */
     this.dropHelper.attachDragWater();
@@ -71,6 +72,13 @@ export default class PoolBuilder extends Project {
       importTexture(assets.tileNrm, "tileNrm"),
       importTexture(assets.worldCol, "worldCol"),
       importTexture(assets.worldNrm, "worldNrm"),
+      importTexture(assets.envMap, "envMap"),
     ]);
+  }
+
+  private async initEnvironmentMap() {
+    const texture = uniforms["envMap"].value!;
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    this.scene.background = texture;
   }
 }
