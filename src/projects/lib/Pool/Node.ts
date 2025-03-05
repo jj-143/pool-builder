@@ -3,6 +3,9 @@ import { TransformControls } from "three/examples/jsm/controls/TransformControls
 
 import App from "@core/App";
 
+const COLOR_NORMAL = "lightseagreen";
+const COLOR_ACTIVE = "gold";
+
 export default class Node extends THREE.Mesh {
   point: THREE.Vector2;
   private control: TransformControls;
@@ -13,7 +16,7 @@ export default class Node extends THREE.Mesh {
 
     const sphere = new THREE.SphereGeometry(0.02, 12, 8);
     const material = new THREE.MeshBasicMaterial({
-      color: "white",
+      color: COLOR_NORMAL,
     });
     super(sphere, material);
 
@@ -48,7 +51,7 @@ export default class Node extends THREE.Mesh {
     this.control.getHelper().visible = set;
     this.control.enabled = set;
     (this.material as THREE.MeshBasicMaterial).color.setColorName(
-      set ? "gold" : "white",
+      set ? COLOR_ACTIVE : COLOR_NORMAL,
     );
   }
 }
