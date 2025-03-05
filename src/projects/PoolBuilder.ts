@@ -3,6 +3,7 @@ import * as THREE from "three";
 import App from "@core/App";
 import Project from "@core/Project";
 
+import DrawHelper from "~/helpers/DrawHelper";
 import DropHelper from "~/helpers/DropHelper";
 import Pool from "~/lib/Pool";
 import uniforms from "~/uniforms";
@@ -11,12 +12,14 @@ import { createSphere } from "~/utils";
 export default class PoolBuilder extends Project {
   pool: Pool;
   clock: THREE.Clock;
+  drawHelper: DrawHelper;
   dropHelper: DropHelper;
 
   constructor() {
     super();
     this.pool = new Pool();
     this.clock = new THREE.Clock();
+    this.drawHelper = new DrawHelper(this.pool);
     this.dropHelper = new DropHelper(this.pool);
   }
 
@@ -27,13 +30,16 @@ export default class PoolBuilder extends Project {
   }
 
   override start() {
+    App.renderer.autoClear = false; // For WaterSimulation
+
     this.camera.position.set(0, 3, 2);
     this.camera.lookAt(0, 1, 0);
     this.pool.init();
     this.initSun();
-    this.drawPlus();
+
+    /* Helpers */
     this.dropHelper.attachDragWater();
-    App.renderer.autoClear = false; // For WaterSimulation
+    this.drawHelper.drawPlus();
   }
 
   override animate() {
@@ -89,28 +95,5 @@ export default class PoolBuilder extends Project {
 
     uniforms["world"].value = texture;
     uniforms["worldNrm"].value = normalTexture;
-  }
-
-  private drawPlus() {
-    this.pool.clear();
-
-    const points = [
-      [1, -0.5],
-      [0.5, -0.5],
-      [0.5, -1],
-      [-0.5, -1],
-      [-0.5, -0.5],
-      [-1, -0.5],
-      [-1, 0.5],
-      [-0.5, 0.5],
-      [-0.5, 1],
-      [0.5, 1],
-      [0.5, 0.5],
-      [1, 0.5],
-    ];
-
-    points.forEach((point) => {
-      this.pool.appendNode(new THREE.Vector3(point[0], 0, point[1]));
-    });
   }
 }
