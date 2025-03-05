@@ -17,12 +17,14 @@ export default class Node extends THREE.Mesh {
     const sphere = new THREE.SphereGeometry(0.02, 12, 8);
     const material = new THREE.MeshBasicMaterial({
       color: COLOR_NORMAL,
+      depthTest: false,
     });
     super(sphere, material);
 
     this.position.copy(point);
     this.name = "node";
     this.point = new THREE.Vector2(point.x, point.z);
+    this.renderOrder = 11;
     this.onMove = onMove;
 
     this.control = project.attachControl(this, this.onControlChange.bind(this));
