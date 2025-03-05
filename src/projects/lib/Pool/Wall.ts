@@ -15,18 +15,18 @@ const MATERIAL = new THREE.ShaderMaterial({
   fragmentShader: wallFrag,
 });
 
-export default class Wall extends THREE.Mesh<
-  THREE.BufferGeometry,
-  THREE.ShaderMaterial
-> {
+export default class Wall extends THREE.Object3D {
   uniforms = {
     width: { value: 1 },
   };
+  wallMesh: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>;
 
   constructor(nodes: [Node, Node]) {
+    super();
     const material = MATERIAL.clone();
-    super(GEOMETRY, material);
     material.uniforms = { ...this.uniforms, ...uniforms };
+    this.wallMesh = new THREE.Mesh(GEOMETRY, material);
+    this.add(this.wallMesh);
     this.update(nodes);
   }
 
@@ -36,10 +36,13 @@ export default class Wall extends THREE.Mesh<
     const angle = p1.point.clone().sub(p0.point).angle();
     const center = p0.point.clone().add(p1.point).divideScalar(2);
 
-    this.scale.setX(width);
-    this.position.set(center.x, -uniforms["poolDepth"].value / 2, center.y);
-    this.rotation.set(0, Math.PI - angle, 0);
-
-    this.material.uniforms["width"].value = width;
+    this.wallMesh.scale.setX(width);
+    this.wallMesh.position.set(
+      center.x,
+      -uniforms["poolDepth"].value / 2,
+      center.y,
+    );
+    this.wallMesh.rotation.set(0, Math.PI - angle, 0);
+    this.wallMesh.material.uniforms["width"].value = width;
   }
 }

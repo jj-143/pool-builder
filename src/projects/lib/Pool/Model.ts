@@ -46,8 +46,8 @@ export default class Model {
     this.listener?.onChange(0, points, this.nodes.length);
   }
 
-  splitWall(wall: Wall): Node {
-    const i0 = this.walls.indexOf(wall);
+  splitWall(wall: Wall["wallMesh"]): Node {
+    const i0 = this.walls.map((it) => it.wallMesh).indexOf(wall);
     const i1 = (i0 + 1) % this.nodes.length;
     const start = this.nodes[i0];
     const end = this.nodes[i1];

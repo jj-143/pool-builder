@@ -209,8 +209,10 @@ export default class Pool implements ModelEventListener {
 
     // Hover on Wall
     {
-      const wallOnHover = rc.intersectObjects(this.model.walls, false)[0]
-        ?.object as Wall | undefined;
+      const wallOnHover = rc.intersectObjects(
+        this.model.walls.map((it) => it.wallMesh),
+        false,
+      )[0]?.object as Wall["wallMesh"] | undefined;
 
       if (wallOnHover) {
         // Split Wall in half
