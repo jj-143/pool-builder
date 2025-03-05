@@ -72,6 +72,8 @@ export default class PoolBuilder extends Project {
       importTexture(assets.tileNrm, "tileNrm"),
       importTexture(assets.worldCol, "worldCol"),
       importTexture(assets.worldNrm, "worldNrm"),
+      importTexture(assets.copingCol, "copingCol"),
+      importTexture(assets.copingNrm, "copingNrm"),
       importTexture(assets.envMap, "envMap"),
     ]);
   }

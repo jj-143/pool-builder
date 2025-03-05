@@ -1,5 +1,8 @@
 import * as THREE from "three";
 
+import config from "~/config";
+import Coping from "~/lib/Pool/Coping";
+
 import Node from "./Node";
 import Wall from "./Wall";
 
@@ -67,8 +70,8 @@ export default class Model {
 
   /* ------------------------------------------------------------ */
   /**
-   * Methods for updating walls when there's node changes:
-   * onInsertNode, onRemoveNode, onMoveNode
+   * Methods for updating walls & copings when there's node changes:
+   * onInsertNode, onRemoveNode, onMoveNode, updateCopingEnd
    */
   private onInsertNode(index: number) {
     const n = this.nodes.length;
@@ -95,6 +98,10 @@ export default class Model {
     const newLastWall = new Wall([this.nodes[i1], this.nodes[i2]]);
     this.walls.splice(i1, 0, newLastWall);
     this.root.add(newLastWall);
+
+    this.updateCopingEnd(i0);
+    this.updateCopingEnd(i1);
+    this.updateCopingEnd(i2);
   }
 
   private onRemoveNode(index: number) {
@@ -106,6 +113,9 @@ export default class Model {
     const nextNode = this.nodes[index % n];
     this.root.remove(thisWall);
     prevWall.update([prevNode, nextNode]);
+
+    this.updateCopingEnd(prev);
+    this.updateCopingEnd(index % n);
   }
 
   private onMoveNode(index: number) {
@@ -119,5 +129,93 @@ export default class Model {
     const wall1 = this.walls[i1];
     wall0.update([this.nodes[i0], this.nodes[i1]]);
     wall1.update([this.nodes[i1], this.nodes[i2]]);
+
+    this.updateCopingEnd(i0);
+    this.updateCopingEnd(i1);
+    this.updateCopingEnd(i2);
+  }
+
+  /**
+   * Updating Coping's position & UV for outer edge vertices position & UV.
+   *
+   * When i-th node (p1) is updated, the previous coping (p0) and the next
+   * coping (p2) are affected. These 2 copings share one of their end's vertices
+   * (ps) and its position and UV are changed; the 2 remaining vertices (@) are
+   * unchanged.
+   *
+   * Indices
+   * For coping-0 (p1-p0-@1-ps), ps is at index-3, whereas for coping-1
+   * (p2-p1-ps-@2), ps is at index-2.
+   *
+   * Position
+   * ps := p1 + dh, where dh := normalize(DH(p2, p1) + DH(p1, p0))
+   *
+   * UV
+   * For dh1 := DH(p1, p0), dh2:= DH(p2, p1) and let theta be angle between dh1
+   * and dh2.
+   *
+   * For theta = 0, p0-p1-p2 is in line, and dh1 = dh2 = DH. The UV coordinate
+   * of ps coping-0 is (0, 1) at index = 3, whereas for coping-1 is (1, 1) at
+   * index = 2.
+   *
+   * As theta increases, UV.x < 0 for coping-0, and UV.x > 0 for coping-1.
+   * As theta decreases, UV.x > 0 for coping-0, and UV.x < 0 for coping-1.
+   *
+   *
+   *  <Convex>                 <Concave>
+   *
+   *        @2-----ps                      @1     /
+   *       /======/==\                    /==\   /
+   *      /======/====\                  /====\ /
+   *  ---p2----p1=====@1        @2----ps======p0
+   *            \=====/          \======\====/
+   *      Pool   \===/            \======\==/   Pool
+   *              p0           ----p2-----p1
+   *               \
+   *
+   *  <DH>
+   *
+   *          <dh2>   _<DH>
+   *            |   _/
+   *            | _/
+   *  ---p2-----p1----<dh1>
+   *            |
+   *      Pool  |
+   *            p0
+   *            |
+   *
+   */
+  private updateCopingEnd(i: number) {
+    const { nodes, walls } = this;
+    const n = walls.length;
+    const h = config.COPING_SIZE;
+    const [i0, i1, i2] = [(i - 1 + n) % n, i, (i + 1) % n];
+    const [p0, p1, p2] = [nodes[i0].point, nodes[i1].point, nodes[i2].point];
+    const [cp0, cp1] = [walls[i0].copingMesh, walls[i1].copingMesh];
+
+    const [dh0, dh1] = [Coping.DH(p0, p1), Coping.DH(p1, p2)];
+    const dh = dh0.clone().add(dh1).normalize();
+
+    const sinTheta = -dh0.cross(dh1);
+    const cosHalfTheta = dh.dot(dh0);
+    const tanHalfTheta = Math.sqrt(1 / (cosHalfTheta * cosHalfTheta) - 1);
+
+    /* Update Positions */
+    const ps = p1.clone().addScaledVector(dh, h / cosHalfTheta);
+
+    cp0.baPosition.setXYZ(3, ps.x, 0, ps.y);
+    cp1.baPosition.setXYZ(2, ps.x, 0, ps.y);
+    cp0.baPosition.needsUpdate = true;
+    cp1.baPosition.needsUpdate = true;
+
+    /* Update UVs */
+    const dUVx = h * tanHalfTheta * Math.sign(sinTheta);
+    const uvx0 = 0 - dUVx / p0.distanceTo(p1);
+    const uvx1 = 1 + dUVx / p1.distanceTo(p2);
+
+    cp0.geometry.getAttribute("uv").setX(3, uvx0);
+    cp1.geometry.getAttribute("uv").setX(2, uvx1);
+    cp0.geometry.getAttribute("uv").needsUpdate = true;
+    cp1.geometry.getAttribute("uv").needsUpdate = true;
   }
 }

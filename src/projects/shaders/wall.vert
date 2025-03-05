@@ -1,3 +1,5 @@
+uniform bool isCoping;
+
 varying vec3 vPosition;
 varying vec2 vUv;
 
@@ -13,7 +15,13 @@ void main() {
   rotationMatrix[3] = vec4(0,0,0,1);
 
   vNormal = (rotationMatrix * vec4(normal, 1)).xyz;
-  vBitangent = vec3(0, 1, 0);
+
+  if (isCoping) {
+    vBitangent = vec3(0, 0, 1);
+  } else {
+    vBitangent = vec3(0, 1, 0);
+  }
+
   vTangent = normalize(cross(vBitangent, vNormal));
 
   gl_Position = projectionMatrix * viewMatrix * vec4(vPosition, 1);

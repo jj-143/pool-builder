@@ -21,6 +21,10 @@ const uniforms = {
   tileNrm: { value: null as THREE.Texture | null },
   tileRepeat: { value: config.TILE_REPEAT },
 
+  copingCol: { value: null as THREE.Texture | null },
+  copingNrm: { value: null as THREE.Texture | null },
+  copingRepeat: { value: config.COPING_REPEAT },
+
   worldCol: { value: null as THREE.Texture | null },
   worldNrm: { value: null as THREE.Texture | null },
   worldSize: { value: config.WORLD_SIZE },

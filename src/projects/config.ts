@@ -5,6 +5,12 @@ const config = {
   SURFACE_Y: -1 / 48,
   TILE_REPEAT: 6 / 12,
 
+  COPING_SIZE: 0.03,
+  _COPING_CELL_COUNT: 3,
+  get COPING_REPEAT() {
+    return (8 * this.COPING_SIZE) / this._COPING_CELL_COUNT;
+  },
+
   WORLD_SIZE: 2000,
   WORLD_REPEAT: 1 / 4,
 };

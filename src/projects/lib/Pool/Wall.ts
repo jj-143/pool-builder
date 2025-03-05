@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import Coping from "~/lib/Pool/Coping";
 import uniforms from "~/uniforms";
 
 import wallFrag from "~/shaders/wall.frag?raw";
@@ -9,7 +10,7 @@ import type Node from "./Node";
 
 const GEOMETRY = new THREE.PlaneGeometry(1, uniforms["poolDepth"].value);
 
-const MATERIAL = new THREE.ShaderMaterial({
+export const MATERIAL = new THREE.ShaderMaterial({
   side: THREE.DoubleSide,
   vertexShader: wallVert,
   fragmentShader: wallFrag,
@@ -17,16 +18,23 @@ const MATERIAL = new THREE.ShaderMaterial({
 
 export default class Wall extends THREE.Object3D {
   uniforms = {
+    ...uniforms,
+    isCoping: { value: false },
     width: { value: 1 },
   };
+  copingMesh: Coping;
   wallMesh: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>;
 
   constructor(nodes: [Node, Node]) {
     super();
     const material = MATERIAL.clone();
-    material.uniforms = { ...this.uniforms, ...uniforms };
+    material.uniforms = this.uniforms;
+
     this.wallMesh = new THREE.Mesh(GEOMETRY, material);
+    this.copingMesh = new Coping(nodes[1].point, nodes[0].point);
+
     this.add(this.wallMesh);
+    this.add(this.copingMesh);
     this.update(nodes);
   }
 
@@ -44,5 +52,7 @@ export default class Wall extends THREE.Object3D {
     );
     this.wallMesh.rotation.set(0, Math.PI - angle, 0);
     this.wallMesh.material.uniforms["width"].value = width;
+
+    this.copingMesh.updateBase(p1.point, p0.point);
   }
 }
