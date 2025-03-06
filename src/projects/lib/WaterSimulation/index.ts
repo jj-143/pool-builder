@@ -6,6 +6,7 @@ import config from "~/config";
 
 import dropWaterShader from "./dropWater.frag?raw";
 import updateShader from "./update.frag?raw";
+import updateNormalShader from "./updateNormal.frag?raw";
 import vertexShader from "./vertex.vert?raw";
 
 const TEXTURE_SIZE = 256;
@@ -29,6 +30,7 @@ export default class WaterSimulation {
   private targetB: THREE.WebGLRenderTarget;
   private dropMesh: THREE.Mesh;
   private updateMesh: THREE.Mesh;
+  private updateNormalMesh: THREE.Mesh;
 
   constructor() {
     const w = config.POOL_SIZE / 2; // 1:1 match for Pool & stencil
@@ -68,8 +70,18 @@ export default class WaterSimulation {
       stencilFunc: THREE.EqualStencilFunc,
     });
 
+    const updateNormalMaterial = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: updateNormalShader,
+      uniforms: this.uniforms,
+      stencilRef: 1,
+      stencilWrite: true,
+      stencilFunc: THREE.EqualStencilFunc,
+    });
+
     this.dropMesh = new THREE.Mesh(this.geometry, dropMaterial);
     this.updateMesh = new THREE.Mesh(this.geometry, updateMaterial);
+    this.updateNormalMesh = new THREE.Mesh(this.geometry, updateNormalMaterial);
   }
 
   // Add a drop of water at the (x, y) coordinate (in the range [-1, 1])
@@ -77,12 +89,21 @@ export default class WaterSimulation {
     this.uniforms["center"].value = [x, y];
     this.uniforms["radius"].value = radius;
     this.uniforms["strength"].value = strength;
+
     this.render(this.dropMesh);
+    if (App.instance.animationState === "stop") {
+      this.render(this.updateNormalMesh);
+    }
   }
 
   stepSimulation() {
     this.step++;
     this.render(this.updateMesh);
+    this.render(this.updateNormalMesh);
+  }
+
+  updateNormal() {
+    this.render(this.updateNormalMesh);
   }
 
   private render(mesh: THREE.Mesh) {

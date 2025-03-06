@@ -108,6 +108,10 @@ export default class Pool implements ModelEventListener {
     uniforms["points"].value.splice(start, points.length, ...points);
     uniforms["nPoints"].value = nPoints;
     this.updateStencil();
+
+    if (App.instance.animationState == "stop") {
+      this.sim.updateNormal();
+    }
   }
 
   private initSurface() {
