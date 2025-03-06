@@ -3,6 +3,7 @@ import * as THREE from "three";
 import App from "@core/App";
 
 import config from "~/config";
+import uniforms from "~/uniforms";
 
 import dropWaterShader from "./dropWater.frag?raw";
 import updateShader from "./update.frag?raw";
@@ -22,7 +23,7 @@ export default class WaterSimulation {
     center: { value: [0, 0] },
     radius: { value: 0 },
     strength: { value: 0 },
-    water: { value: null as THREE.Texture | null },
+    water: uniforms["water"],
   } satisfies THREE.ShaderMaterial["uniforms"];
   private camera: THREE.OrthographicCamera;
   private geometry: THREE.BufferGeometry;
@@ -38,7 +39,6 @@ export default class WaterSimulation {
     // Looking from below to align the stencil mesh with camera space (xy plane)
     this.camera = new THREE.OrthographicCamera(-w, w, w, -w, 0, 100);
     this.camera.rotateX(Math.PI / 2);
-    this.camera.position.set(0, -1, 0);
     this.geometry = new THREE.PlaneGeometry(2, 2);
 
     this.targetA = new THREE.WebGLRenderTarget(TEXTURE_SIZE, TEXTURE_SIZE, {
@@ -128,5 +128,6 @@ export default class WaterSimulation {
     App.renderer.render(mesh, this.camera);
     App.renderer.setRenderTarget(oldTarget);
     this.target = _newTarget;
+    this.uniforms["water"].value = _newTarget.texture;
   }
 }

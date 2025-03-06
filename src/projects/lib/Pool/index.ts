@@ -36,7 +36,6 @@ export default class Pool implements ModelEventListener {
     this.model = new Model(this);
     this.sim = new WaterSimulation();
     this.stencilHelper = new StencilHelper(this);
-    uniforms["water"].value = this.sim.target.texture;
   }
 
   init() {
