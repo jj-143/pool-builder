@@ -27,6 +27,7 @@ void main() {
   vec3 color;
   vec3 look = normalize(vPosition - cameraPosition);
   vec3 refractedLook = refract(look, vNormal, 1.f / 1.33f);
+  vec3 refractedLight = -refract(-light, vec3(0,1,0), 1.f/1.33f);
   vec3 hit;
 
   vec3 tangent;
@@ -52,8 +53,8 @@ void main() {
   vec3 normal = normalize(TBN * nrm.rgb);
   vec3 r = normalize(reflect(refractedLook, normal));
 
-  float diff = clamp(LIGHT_INTENSITY * dot(normal, light), 0.0, 1.0);
-  float spec = LIGHT_INTENSITY * pow(clamp(dot(light, r), 0.0, 1.0) , 1500.0);
+  float diff = clamp(LIGHT_INTENSITY * dot(normal, refractedLight), 0.0, 1.0);
+  float spec = LIGHT_INTENSITY * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
 
   vec3 colRefraction = diff * col + spec;
 
