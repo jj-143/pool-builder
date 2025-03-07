@@ -13,7 +13,7 @@ const uniforms = {
   surfaceY: { value: config.SURFACE_Y },
   poolSize: { value: config.POOL_SIZE },
 
-  sun: { value: new THREE.Vector3(0.5, 3, 0.5) },
+  light: { value: new THREE.Vector3(...config.SUN_POS).normalize() },
 
   water: { value: null as THREE.Texture | null },
 

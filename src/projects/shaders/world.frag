@@ -1,7 +1,8 @@
 varying vec3 vPosition;
 varying vec2 vUv;
 
-uniform vec3 sun;
+uniform vec3 light;
+
 uniform sampler2D worldCol;
 uniform sampler2D worldNrm;
 uniform float worldRepeat;
@@ -18,7 +19,6 @@ void main() {
   vec3 normal = vec3(nrm.x, nrm.z, -nrm.y);
 
   vec3 view = normalize(cameraPosition - vPosition);
-  vec3 light = normalize(sun - vPosition);
   vec3 r = normalize(reflect(-view, normal));
 
   float diff = clamp(LIGHT_INTENSITY * dot(normal, light), 0.0, 1.0);

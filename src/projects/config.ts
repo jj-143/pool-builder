@@ -13,6 +13,8 @@ const config = {
 
   WORLD_SIZE: 2000,
   WORLD_REPEAT: 1 / 4,
+
+  SUN_POS: [0.5, 3, 0.5],
 };
 
 export default config;

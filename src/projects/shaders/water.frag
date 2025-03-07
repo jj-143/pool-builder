@@ -3,7 +3,7 @@ uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
 uniform sampler2D envMap;
 
-uniform vec3 sun;
+uniform vec3 light;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -45,7 +45,6 @@ void main() {
   hitNormal = vec3(0, 1, 0);
   coords = vec2(hit.x, hit.z) / tileRepeat;
 
-  vec3 light = normalize(sun - hit);
   vec3 col = texture2D(tileCol, coords).rgb;
   vec3 nrm = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);
 
@@ -62,11 +61,10 @@ void main() {
   /** ------------------------------------------------------------
    *  Reflection
    */
-  vec3 lightSurface = normalize(sun - vPosition);
   vec3 rSurface = normalize(reflect(look, vNormal));
 
-  vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, lightSurface)); // abs for underwater
-  float specSurface = LIGHT_INTENSITY * pow(clamp(dot(lightSurface, rSurface), 0.0, 1.0) , 1500.0);
+  vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
+  float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
   vec2 uv = directionToEquirectangularUV(rSurface);
   vec3 env = texture2D(envMap, fract(uv)).rgb;
   vec3 colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;

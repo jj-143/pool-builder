@@ -59,9 +59,9 @@ export default class PoolBuilder extends Project {
   }
 
   private initSun() {
-    const sun = createSphere(uniforms["sun"].value);
+    const sun = createSphere(uniforms["light"].value);
     this.attachControl(sun, () => {
-      uniforms["sun"].value.copy(sun.position);
+      uniforms["light"].value.copy(sun.position).normalize();
     });
     this.uiGroup.add(sun);
   }
