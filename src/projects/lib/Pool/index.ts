@@ -126,6 +126,7 @@ export default class Pool implements ModelEventListener {
       vertexShader: waterVert,
       fragmentShader: waterFrag,
       uniforms: uniforms,
+      defines: config.DEFINES,
 
       stencilRef: 1,
       stencilWrite: true,

@@ -41,7 +41,7 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   mat3 TBN = mat3(tangent, bitangent, hitNormal);
   vec3 normal = normalize(TBN * nrm.rgb);
   vec3 r = reflect(dir, normal);
-  vec3 refractedLight = -refract(-light, vec3(0,1,0), 1.f/1.33f);
+  vec3 refractedLight = -refract(-light, vec3(0,1,0), IOR);
 
   float diff = clamp(LIGHT_INTENSITY * dot(normal, refractedLight), 0.0, 1.0);
   float spec = LIGHT_INTENSITY * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
@@ -53,7 +53,7 @@ void main() {
   vec3 look = normalize(vPosition - cameraPosition);
 
   /* Refraction */
-  vec3 refractedLook = refract(look, vNormal, 1.f / 1.33f);
+  vec3 refractedLook = refract(look, vNormal, IOR);
   vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook);
 
   /* Reflection */
@@ -61,7 +61,7 @@ void main() {
   vec3 rSurface = reflect(look, vNormal);
 
   if (rSurface.y < 0.0) {
-    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, 1.f/ 1.33f));
+    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR));
   } else {
     vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
     float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
