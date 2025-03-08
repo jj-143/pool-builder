@@ -57,13 +57,18 @@ void main() {
   vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook);
 
   /* Reflection */
-  vec3 rSurface = normalize(reflect(look, vNormal));
+  vec3 colReflection;
+  vec3 rSurface = reflect(look, vNormal);
 
-  vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
-  float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
-  vec2 uv = directionToEquirectangularUV(rSurface);
-  vec3 env = texture2D(envMap, fract(uv)).rgb;
-  vec3 colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;
+  if (rSurface.y < 0.0) {
+    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, 1.f/ 1.33f));
+  } else {
+    vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
+    float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
+    vec2 uv = directionToEquirectangularUV(rSurface);
+    vec3 env = texture2D(envMap, fract(uv)).rgb;
+    colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;
+  }
 
   /* Fresnel mix with F0 as 2% */
   float fresnel = mix(0.02, 1.0, pow(1.0 - dot(vNormal, -look), 3.0));
