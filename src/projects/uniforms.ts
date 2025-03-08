@@ -16,6 +16,7 @@ const uniforms = {
   light: { value: new THREE.Vector3(...config.SUN_POS).normalize() },
 
   water: { value: null as THREE.Texture | null },
+  causticsTex: { value: null as THREE.Texture | null },
 
   tileCol: { value: null as THREE.Texture | null },
   tileNrm: { value: null as THREE.Texture | null },

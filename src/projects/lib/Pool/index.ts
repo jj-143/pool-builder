@@ -4,6 +4,7 @@ import App from "@core/App";
 
 import config from "~/config";
 import StencilHelper from "~/helpers/StencilHelper";
+import Caustics from "~/lib/Caustics";
 import WaterSimulation from "~/lib/WaterSimulation";
 import uniforms from "~/uniforms";
 
@@ -28,6 +29,7 @@ export default class Pool implements ModelEventListener {
   private unsubscribeClickEvent?: () => void;
 
   sim: WaterSimulation;
+  caustics: Caustics;
   private world!: THREE.Mesh;
   private worldBoundary!: THREE.LineSegments;
   private stencilHelper: StencilHelper;
@@ -35,6 +37,7 @@ export default class Pool implements ModelEventListener {
   constructor() {
     this.model = new Model(this);
     this.sim = new WaterSimulation();
+    this.caustics = new Caustics();
     this.stencilHelper = new StencilHelper(this);
   }
 

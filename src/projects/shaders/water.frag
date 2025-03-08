@@ -1,4 +1,6 @@
 uniform sampler2D water;
+uniform sampler2D causticsTex;
+
 uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
 uniform sampler2D envMap;
@@ -11,7 +13,7 @@ varying vec3 vTangent;
 varying vec3 vBitangent;
 
 uniform float poolDepth;
-uniform float SURFACE_LEVEL;
+uniform float surfaceY;
 uniform float tileRepeat;
 
 vec3 WATER_COLOR = vec3(0.8, 1.0, 1.1);
@@ -49,6 +51,7 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
     coords = computedCoord / tileRepeat;
   }
 
+  /* Face color */
   vec3 col = texture2D(tileCol, coords).rgb;
   vec3 nrm = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);
 
@@ -60,7 +63,13 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   float diff = clamp(LIGHT_INTENSITY * dot(normal, refractedLight), 0.0, 1.0);
   float spec = LIGHT_INTENSITY * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
 
-  return diff * col + spec;
+  /* Caustics */
+  vec2 surfaceCoord = (
+    hit.xz + (surfaceY - hit.y) * refractedLight.xz / refractedLight.y
+  ) * 0.5 + 0.5;
+  float caustics = texture2D(causticsTex, surfaceCoord).r * 0.8;
+
+  return (diff * caustics) * col + spec;
 }
 
 void main() {

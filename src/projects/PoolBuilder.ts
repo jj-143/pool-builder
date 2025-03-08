@@ -50,6 +50,7 @@ export default class PoolBuilder extends Project {
         this.clock.start();
       }
     }
+    this.pool.caustics.render();
     this.render();
   }
 
