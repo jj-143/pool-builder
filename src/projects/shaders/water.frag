@@ -25,6 +25,27 @@ vec2 directionToEquirectangularUV(vec3 dir) {
     return vec2(u, v);
 }
 
+float getShadow(vec3 pos, vec3 lightDir) {
+  float t;
+  if (intersectPool(pos + lightDir * 1e-3, lightDir, t) < 0) return 0.0;
+  vec3 hit = pos + lightDir * t;
+
+  /*
+  * Smooth out the edges for soft-shadows using sigmoid.
+  * tanh also works fine.
+  *
+  * For hard-shadows:
+  * return hit.y > 0.0 ? 1.0 : 0.0;
+  */
+  float bias = 4.0 / 48.0; // small bias to hide jagged stencil edges
+  hit.y -= bias;
+
+  float dy = hit.y + bias;
+  float denom = 1.0 + 10.0 * length(hit - pos); // smoothness from depth
+
+  return 1.0 / (1.0 + exp(-400.0 * dy / denom));
+}
+
 vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   float t;
   int index = intersectPool(pos, dir, t);
@@ -69,7 +90,10 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   ) * 0.5 + 0.5;
   float caustics = texture2D(causticsTex, surfaceCoord).r * 0.8;
 
-  return (diff * caustics) * col + spec;
+  /* Shadow */
+  float shadow = getShadow(hit, refractedLight);
+
+  return (0.4 + diff * caustics * shadow) * col + spec * shadow;
 }
 
 void main() {
