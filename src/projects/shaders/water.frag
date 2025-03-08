@@ -23,24 +23,13 @@ vec2 directionToEquirectangularUV(vec3 dir) {
     return vec2(u, v);
 }
 
-void main() {
-  vec3 color;
-  vec3 look = normalize(vPosition - cameraPosition);
-  vec3 refractedLook = refract(look, vNormal, 1.f / 1.33f);
-  vec3 refractedLight = -refract(-light, vec3(0,1,0), 1.f/1.33f);
-  vec3 hit;
-
+vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   vec3 tangent;
   vec3 bitangent;
   vec3 hitNormal;
   vec2 coords;
 
-  /** ------------------------------------------------------------
-   *  Refraction
-   */
-  // Hit on the bottom
-  hit = vPosition + refractedLook * (-poolDepth - vPosition.y) / refractedLook.y;
-
+  vec3 hit = pos + dir * (-poolDepth - pos.y) / dir.y;
   bitangent = vec3(0, 0, 1);
   tangent = vec3(1, 0, 0);
   hitNormal = vec3(0, 1, 0);
@@ -51,17 +40,23 @@ void main() {
 
   mat3 TBN = mat3(tangent, bitangent, hitNormal);
   vec3 normal = normalize(TBN * nrm.rgb);
-  vec3 r = normalize(reflect(refractedLook, normal));
+  vec3 r = reflect(dir, normal);
+  vec3 refractedLight = -refract(-light, vec3(0,1,0), 1.f/1.33f);
 
   float diff = clamp(LIGHT_INTENSITY * dot(normal, refractedLight), 0.0, 1.0);
   float spec = LIGHT_INTENSITY * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
 
-  vec3 colRefraction = diff * col + spec;
+  return diff * col + spec;
+}
 
+void main() {
+  vec3 look = normalize(vPosition - cameraPosition);
 
-  /** ------------------------------------------------------------
-   *  Reflection
-   */
+  /* Refraction */
+  vec3 refractedLook = refract(look, vNormal, 1.f / 1.33f);
+  vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook);
+
+  /* Reflection */
   vec3 rSurface = normalize(reflect(look, vNormal));
 
   vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
@@ -70,11 +65,9 @@ void main() {
   vec3 env = texture2D(envMap, fract(uv)).rgb;
   vec3 colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;
 
-  /** ------------------------------------------------------------
-   *  Fresnel mix with F0 as 2%
-   */
+  /* Fresnel mix with F0 as 2% */
   float fresnel = mix(0.02, 1.0, pow(1.0 - dot(vNormal, -look), 3.0));
-  color = mix(colRefraction,  colReflection, fresnel);
+  vec3 color = mix(colRefraction,  colReflection, fresnel);
 
   gl_FragColor = vec4(color, 1);
 }
