@@ -24,16 +24,30 @@ vec2 directionToEquirectangularUV(vec3 dir) {
 }
 
 vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
+  float t;
+  int index = intersectPool(pos, dir, t);
+  if (index < 0) discard;
+  vec3 hit = pos + dir * t;
+
   vec3 tangent;
   vec3 bitangent;
   vec3 hitNormal;
   vec2 coords;
 
-  vec3 hit = pos + dir * (-poolDepth - pos.y) / dir.y;
-  bitangent = vec3(0, 0, 1);
-  tangent = vec3(1, 0, 0);
-  hitNormal = vec3(0, 1, 0);
-  coords = vec2(hit.x, hit.z) / tileRepeat;
+  if (hit.y < -poolDepth) {
+    hit = pos + dir * (-poolDepth - pos.y) / dir.y;
+    bitangent = vec3(0, 0, 1);
+    tangent = vec3(1, 0, 0);
+    hitNormal = vec3(0, 1, 0);
+    coords = vec2(hit.x, hit.z) / tileRepeat;
+  } else {
+    vec3 segment[2] = vec3[](vec3(points[index], 0), vec3(points [(index+1) % nPoints], 0));
+    tangent = -normalize(segment[1].xzy - segment[0].xzy);
+    bitangent = vec3(0, 1, 0);
+    hitNormal = normalize(cross(tangent, bitangent)); // to set right side of tangent as normal;
+    vec2 computedCoord = vec2(length(segment[1].xy - hit.xz), hit.y);
+    coords = computedCoord / tileRepeat;
+  }
 
   vec3 col = texture2D(tileCol, coords).rgb;
   vec3 nrm = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);

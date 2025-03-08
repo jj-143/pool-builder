@@ -7,6 +7,7 @@ import StencilHelper from "~/helpers/StencilHelper";
 import WaterSimulation from "~/lib/WaterSimulation";
 import uniforms from "~/uniforms";
 
+import intersectPool from "~/shaders/intersectPool.glsl?raw";
 import waterFrag from "~/shaders/water.frag?raw";
 import waterVert from "~/shaders/water.vert?raw";
 import worldFrag from "~/shaders/world.frag?raw";
@@ -122,7 +123,7 @@ export default class Pool implements ModelEventListener {
 
     const material = new THREE.ShaderMaterial({
       vertexShader: waterVert,
-      fragmentShader: waterFrag,
+      fragmentShader: intersectPool + waterFrag,
       uniforms: uniforms,
       defines: config.DEFINES,
 
