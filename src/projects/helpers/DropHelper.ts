@@ -6,8 +6,8 @@ import config from "~/config";
 import Pool from "~/lib/Pool";
 
 export default class DropHelper {
-  size = 0.015;
-  amount = 0.003;
+  size = 0.025;
+  amount = 0.008;
   private pool: Pool;
   private DEVDropCount = 0;
 
@@ -34,7 +34,7 @@ export default class DropHelper {
         .add(ray.origin)
         .multiplyScalar(2 / config.POOL_SIZE); // To simulation space [-1, 1]
       if (!checkBound(pSurface)) return;
-      this.pool.sim.addDrop(pSurface.x, pSurface.z, this.size, -this.amount);
+      this.pool.sim.addDrop(pSurface.x, pSurface.z, this.size, this.amount);
     };
 
     document.addEventListener("pointerdown", (event) => {
