@@ -115,6 +115,7 @@ export default class WaterSimulation {
     const oldTarget = App.renderer.getRenderTarget();
 
     App.renderer.setRenderTarget(_newTarget);
+    App.renderer.setClearAlpha(0);
     App.renderer.clear();
 
     this.uniforms["water"].value = _oldTarget.texture;
