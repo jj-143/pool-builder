@@ -29,7 +29,6 @@ export default class Pool implements ModelEventListener {
   sim: WaterSimulation;
   private world!: THREE.Mesh;
   private worldBoundary!: THREE.LineSegments;
-  private stencil?: THREE.Mesh;
   private stencilHelper: StencilHelper;
 
   constructor() {
@@ -42,7 +41,6 @@ export default class Pool implements ModelEventListener {
     this.initSurface();
     this.world = this.initWorld();
     this.worldBoundary = this.initWorldBoundary();
-    this.updateStencil();
 
     App.instance.project?.scene.add(this.model.root);
     this.attachShortcuts();
@@ -106,7 +104,7 @@ export default class Pool implements ModelEventListener {
   onChange(start: number, points: THREE.Vector2[], nPoints: number): void {
     uniforms["points"].value.splice(start, points.length, ...points);
     uniforms["nPoints"].value = nPoints;
-    this.updateStencil();
+    this.stencilHelper.updateStencil();
 
     if (App.instance.animationState == "stop") {
       this.sim.updateNormal();
@@ -176,17 +174,6 @@ export default class Pool implements ModelEventListener {
 
     App.instance.project!.scene.add(lines);
     return lines;
-  }
-
-  /**
-   * @remarks: Recreate the stencil mesh for now.
-   */
-  private updateStencil() {
-    this.stencil?.removeFromParent();
-    const points = uniforms["points"].value.slice(0, uniforms["nPoints"].value);
-    this.stencil = this.stencilHelper.create(points);
-    this.sim.stencil = this.stencil;
-    App.instance.project!.scene.add(this.stencil);
   }
 
   private handleWorldClick(rc: THREE.Raycaster, { button }: MouseEvent) {

@@ -16,7 +16,6 @@ const DELTA = 1 / 256;
 export default class WaterSimulation {
   step = 0;
   target: THREE.WebGLRenderTarget;
-  stencil?: THREE.Mesh;
 
   private uniforms = {
     delta: { value: [DELTA, DELTA] },
@@ -106,6 +105,23 @@ export default class WaterSimulation {
     this.render(this.updateNormalMesh);
   }
 
+  /**
+   * Update stencil buffers for every render targets
+   */
+  renderStencil(mesh: THREE.Mesh) {
+    const oldTarget = App.renderer.getRenderTarget();
+
+    App.renderer.setRenderTarget(this.targetA);
+    App.renderer.clearStencil();
+    App.renderer.render(mesh, this.camera);
+
+    App.renderer.setRenderTarget(this.targetB);
+    App.renderer.clearStencil();
+    App.renderer.render(mesh, this.camera);
+
+    App.renderer.setRenderTarget(oldTarget);
+  }
+
   private render(mesh: THREE.Mesh) {
     // Swap textures
     const _oldTarget = this.target;
@@ -116,16 +132,9 @@ export default class WaterSimulation {
 
     App.renderer.setRenderTarget(_newTarget);
     App.renderer.setClearAlpha(0);
-    App.renderer.clear();
+    App.renderer.clear(true, true, false);
 
     this.uniforms["water"].value = _oldTarget.texture;
-
-    if (this.stencil) {
-      // TODO: If no stencil, should it
-      // Stencil always there, full square if there's no point.
-      // So isn't this.stencil always exist??
-      App.renderer.render(this.stencil, this.camera);
-    }
     App.renderer.render(mesh, this.camera);
     App.renderer.setRenderTarget(oldTarget);
     this.target = _newTarget;
