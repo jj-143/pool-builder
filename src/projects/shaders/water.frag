@@ -16,8 +16,8 @@ uniform float poolDepth;
 uniform float surfaceY;
 uniform float tileRepeat;
 
-vec3 WATER_COLOR = vec3(0.8, 1.0, 1.1);
 float LIGHT_INTENSITY = 1.0;
+float AMBIENT = 0.4;
 
 vec2 directionToEquirectangularUV(vec3 dir) {
     float u = atan(dir.z, dir.x) / (2.0 * 3.14159265) + 0.5;
@@ -88,12 +88,13 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   vec2 surfaceCoord = (
     hit.xz + (surfaceY - hit.y) * refractedLight.xz / refractedLight.y
   ) * 0.5 + 0.5;
-  float caustics = texture2D(causticsTex, surfaceCoord).r * 0.8;
+  float caustics = texture2D(causticsTex, surfaceCoord).r;
 
   /* Shadow */
   float shadow = getShadow(hit, refractedLight);
 
-  return (0.4 + diff * caustics * shadow) * col + spec * shadow;
+  return (AMBIENT + diff * (0.50 + 0.25 * caustics) * shadow) * col
+    + spec * 10.0 * shadow;
 }
 
 void main() {
@@ -110,11 +111,10 @@ void main() {
   if (rSurface.y < 0.0) {
     colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR));
   } else {
-    vec3 diffSurface = WATER_COLOR * abs(LIGHT_INTENSITY * dot(vNormal, light)); // abs for underwater
     float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
     vec2 uv = directionToEquirectangularUV(rSurface);
     vec3 env = texture2D(envMap, fract(uv)).rgb;
-    colReflection = diffSurface * 0.2 + specSurface * 10.0 + env;
+    colReflection = specSurface * 10.0 + env;
   }
 
   /* Fresnel mix with F0 as 2% */

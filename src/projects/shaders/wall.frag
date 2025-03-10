@@ -20,19 +20,23 @@ varying vec3 vBitangent;
 varying vec3 vNormal;
 
 float lightIntensity = 1.0;
-float ambient = 0.05;
+float AMBIENT_WALL = 0.4;
+float AMBIENT_COPING = 0.0;
 
 void main() {
   mat3 TBN = mat3(vTangent, vBitangent, vNormal);
   vec2 coords;
   vec4 tileColor;
   vec3 tileNormal;
+  float ambient;
 
   if (isCoping) {
+    ambient = AMBIENT_COPING;
     coords = fract(vUv * vec2(width, height) / copingRepeat);
     tileColor = texture2D(copingCol, coords);
     tileNormal = normalize(texture2D(copingNrm, coords).rgb * 2.0 - 1.0);
   } else {
+    ambient = AMBIENT_WALL;
     coords = fract(vUv * vec2(width, poolDepth) / tileRepeat);
     tileColor = texture2D(tileCol, coords);
     tileNormal = normalize(texture2D(tileNrm, coords).rgb * 2.0 - 1.0);
@@ -46,6 +50,6 @@ void main() {
   float diff = clamp(lightIntensity * dot(normal, light), 0.2, 1.0);
   float specular = lightIntensity * pow(clamp(dot(light, r), 0.0, 1.0) , 1500.0);
 
-  vec3 color = (diff + ambient) * tileColor.rgb + specular * 10.0;
+  vec3 color = (ambient + diff) * tileColor.rgb + specular * 10.0;
   gl_FragColor = vec4(color, 1);
 }
