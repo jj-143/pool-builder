@@ -20,8 +20,13 @@ export default class App {
 
   static instance: App;
   static renderer: THREE.WebGLRenderer;
+  static container: HTMLElement;
+  static containerSize: [number, number] = [0, 0];
 
-  constructor(parameters?: THREE.WebGLRendererParameters) {
+  constructor(
+    container: HTMLElement,
+    parameters?: THREE.WebGLRendererParameters,
+  ) {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       ...parameters,
@@ -30,16 +35,15 @@ export default class App {
     this.renderer = renderer;
     App.renderer = renderer;
     App.instance = this;
-
-    const container = document.createElement("div");
-    document.body.appendChild(container);
+    App.container = container;
 
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
+    App.container.appendChild(renderer.domElement);
 
     this.addShortcuts();
-    document.addEventListener("mouseup", () => this.setUIControlState("idle"));
+    App.container.addEventListener("mouseup", () =>
+      this.setUIControlState("idle"),
+    );
   }
 
   async loadProject(project: Project) {
@@ -47,6 +51,7 @@ export default class App {
     this.project = project;
     this.setupHelpers(project);
     window.addEventListener("resize", this.onWindowResize.bind(this));
+    this.onWindowResize();
     project.start();
     this.renderer.setAnimationLoop(project.animate.bind(project));
   }
@@ -82,15 +87,16 @@ export default class App {
 
     const handler = (event: MouseEvent) => {
       if (this.uiControlState != "idle") return;
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      const [w, h] = App.containerSize;
+      pointer.x = (event.offsetX / w) * 2 - 1;
+      pointer.y = -(event.offsetY / h) * 2 + 1;
       raycaster.setFromCamera(pointer, this.project!.camera);
       callback(raycaster, event);
     };
 
-    document.addEventListener("mouseup", handler, { capture: true });
+    App.container.addEventListener("mouseup", handler, { capture: true });
     return () =>
-      document.removeEventListener("mouseup", handler, { capture: true });
+      App.container.removeEventListener("mouseup", handler, { capture: true });
   }
 
   private addOrbitControls(camera: THREE.Camera) {
@@ -138,12 +144,22 @@ export default class App {
     project.scene.add(this.gridHelper);
   }
 
+  private updateContainerSize() {
+    const rect = App.container.getBoundingClientRect();
+    App.containerSize = [
+      rect.width || window.innerWidth,
+      rect.height || window.innerHeight,
+    ];
+    return App.containerSize;
+  }
+
   private onWindowResize() {
+    const [w, h] = this.updateContainerSize();
     if (this.project) {
-      this.project.camera.aspect = window.innerWidth / window.innerHeight;
+      this.project.camera.aspect = w / h;
       this.project.camera.updateProjectionMatrix();
     }
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(w, h);
     this.project?.render();
   }
 
