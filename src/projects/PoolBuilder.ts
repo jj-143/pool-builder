@@ -31,6 +31,7 @@ export default class PoolBuilder extends Project {
 
   override start() {
     App.renderer.autoClear = false; // For WaterSimulation
+    App.instance.axesHelper?.removeFromParent();
 
     this.camera.position.set(0, 3, 2);
     this.camera.lookAt(0, 1, 0);
