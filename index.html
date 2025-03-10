@@ -2,11 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pool Builder</title>
     <style>
-      html {
+      body {
+        margin: 0;
+        font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova",
+          "Nimbus Sans", Arial, sans-serif;
+      }
+
+      #root {
+        display: flex;
+        height: 100vh;
+      }
+
+      #container {
+        flex: 1;
+        overflow: hidden;
         user-select: none;
         -webkit-touch-callout: none; /* Safari */
         -webkit-user-select: none; /* Chrome */
@@ -14,17 +26,164 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
       }
 
-      body {
+      #sidebar {
+        width: 350px;
+        padding: 16px;
+        background-color: hsl(185 22% 65% / 1);
+        color: hsl(206 16% 17% / 1);
+        overflow-y: auto;
+      }
+
+      h1 {
+        margin: 24px 0px 12px;
+      }
+
+      h2 {
+        font-size: 1rem;
+        margin: 18px 0px 8px;
+      }
+
+      p {
+        margin: 8px 0;
+      }
+
+      ul {
+        padding-left: 1.5rem;
         margin: 0;
       }
 
-      #container {
-        height: 100vh;
+      li {
+        padding: 2px 0;
+      }
+
+      code {
+        white-space: nowrap;
+        font-size: 0.7rem;
+        padding: 2px 4px;
+        border-radius: 4px;
+        background-color: hsl(179 20% 80% / 1);
+      }
+
+      a {
+        color: hsl(206 16% 17% / 1);
       }
     </style>
   </head>
   <body>
     <script type="module" src="/src/main.ts"></script>
-    <div id="container"></div>
+    <main id="root">
+      <section id="sidebar">
+        <h1>Pool Builder</h1>
+        <p>
+          Inspired by
+          <a href="https://en.wikipedia.org/wiki/Planet_Coaster_2"
+            >Planet Coaster 2</a
+          >.
+          <a href="https://github.com/jj-143/pool-builder">Source code</a>
+        </p>
+        <br />
+
+        <h2>Features</h2>
+        <ul>
+          <li>Customizable pool geometry</li>
+          <li>Directional light (the gizmo over the pool as sun)</li>
+          <li>Heightfield water simulation</li>
+          <li>Caustics, reflections & refractions</li>
+          <li>[Normal mode] Drag water with <code>Mouse Left</code></li>
+        </ul>
+
+        <h2>Controls</h2>
+        <ul>
+          <li>
+            <code>Mouse Middle</code>
+            Rotate
+          </li>
+          <li>
+            <code>Shift+Mouse Middle</code>
+            Pan
+          </li>
+          <li>
+            <code>Mouse Wheel</code>
+            Zoom in/out
+          </li>
+          <li>
+            <code>Alt+Shift+Z</code>
+            Toggle overlays
+          </li>
+        </ul>
+
+        <h2>Edit mode</h2>
+        <ul>
+          <li>
+            <code>Mouse Left</code> on the Node to select and use the gizmo
+          </li>
+          <li>
+            <code>Mouse Right</code>
+            on the Node to remove it
+          </li>
+          <li>
+            <code>Mouse Left</code>
+            on the Wall to split in half
+          </li>
+        </ul>
+
+        <h2>Shortcuts</h2>
+        <ul>
+          <li>
+            <code>Tab</code>
+            Toggle Normal/Edit mode
+          </li>
+          <li>
+            <code>Space</code>
+            Play/Stop simulation
+          </li>
+          <li>
+            <code>1</code>
+            Draw rectangle
+          </li>
+          <li>
+            <code>2</code>
+            Draw square
+          </li>
+          <li>
+            <code>3</code>
+            Draw circle
+          </li>
+          <li>
+            <code>4</code>
+            Draw plus
+          </li>
+          <li>
+            <code>5</code>
+            Free draw (counter-clock-wise)
+          </li>
+          <li>
+            <code>Ctrl+C</code>
+            Clear
+          </li>
+        </ul>
+
+        <br />
+
+        <h2>Acknowledgements</h2>
+        <ul>
+          <li>
+            <a href="https://github.com/evanw/webgl-water">
+              <i>WebGL Water</i>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/martinRenou/threejs-caustics">
+              <i>ThreeJS Caustics</i></a
+            >
+          </li>
+          <li>
+            CC0 textures & HDRI from
+            <a href="https://ambientcg.com">AmbientCG</a>
+          </li>
+        </ul>
+      </section>
+      <section id="container"></section>
+    </main>
   </body>
 </html>
