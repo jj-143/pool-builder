@@ -37,26 +37,27 @@ export default class DropHelper {
       this.pool.sim.addDrop(pSurface.x, pSurface.z, this.size, this.amount);
     };
 
-    document.addEventListener("pointerdown", (event) => {
+    App.container.addEventListener("pointerdown", (event) => {
       if (event.button != 0) return;
       if (this.pool.mode != "normal") return;
       if (App.instance.uiControlState != "idle") return;
       App.instance.setUIControlState("interacting");
-
+      const [w, h] = App.containerSize;
       dragging = true;
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      pointer.x = (event.offsetX / w) * 2 - 1;
+      pointer.y = -(event.offsetY / h) * 2 + 1;
       tryDrop();
     });
 
-    document.addEventListener("pointermove", (event) => {
+    App.container.addEventListener("pointermove", (event) => {
       if (!dragging) return;
-      pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      const [w, h] = App.containerSize;
+      pointer.x = (event.offsetX / w) * 2 - 1;
+      pointer.y = -(event.offsetY / h) * 2 + 1;
       tryDrop();
     });
 
-    document.addEventListener("pointerup", () => (dragging = false));
+    App.container.addEventListener("pointerup", () => (dragging = false));
   }
 
   /**
