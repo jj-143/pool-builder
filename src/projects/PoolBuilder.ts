@@ -33,8 +33,7 @@ export default class PoolBuilder extends Project {
     App.renderer.autoClear = false; // For WaterSimulation
     App.instance.axesHelper?.removeFromParent();
 
-    this.camera.position.set(0, 3, 2);
-    this.camera.lookAt(0, 1, 0);
+    this.initCamera();
     this.pool.init();
     this.initSun();
     this.initEnvironmentMap();
@@ -58,6 +57,12 @@ export default class PoolBuilder extends Project {
   override toggleOverlays() {
     super.toggleOverlays();
     this.pool.toggleMode("normal");
+  }
+
+  private initCamera() {
+    this.camera.position.set(-1.8, 2.0, 2.0);
+    this.camera.lookAt(0, 0, 0);
+    App.instance.orbitControl?.target.set(0, 0, 0);
   }
 
   private initSun() {

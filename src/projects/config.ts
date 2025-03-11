@@ -14,7 +14,7 @@ const config = {
   WORLD_SIZE: 2000,
   WORLD_REPEAT: 1 / 4,
 
-  SUN_POS: [0.5, 3, 0.5],
+  SUN_POS: [0.1, 1.0, 0.3],
 
   DEFINES: {
     IOR: `${1 / 1.33}`,
