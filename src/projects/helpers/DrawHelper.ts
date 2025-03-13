@@ -26,6 +26,11 @@ export default class DrawHelper {
         case "4":
           this.drawPlus();
           break;
+        case "5":
+          this.pool.isFreeDrawing = true;
+          this.pool.clear();
+          this.pool.toggleMode("edit");
+          break;
       }
     });
   }
@@ -66,6 +71,8 @@ export default class DrawHelper {
 
   private draw(points: PointXZ[]) {
     this.pool.clear();
+    this.pool.toggleMode("normal");
+    this.pool.isFreeDrawing = false;
     const points3D = points.map((xz) => new THREE.Vector3(xz[0], 0, xz[1]));
     points3D.forEach((vec) => this.pool.appendNode(vec));
   }

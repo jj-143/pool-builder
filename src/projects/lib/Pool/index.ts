@@ -22,6 +22,7 @@ type Mode = "normal" | "edit";
 
 export default class Pool implements ModelEventListener {
   mode: Mode = "normal";
+  isFreeDrawing = false;
   selectedNode: Node | null = null;
 
   private nodeGap = 0.1;
@@ -238,7 +239,8 @@ export default class Pool implements ModelEventListener {
 
     // On empty area, no selection
     if (button == 0) {
-      // Append Node at the end
+      // Free drawing: append Node at the end
+      if (!this.isFreeDrawing) return;
       const intersect = rc.intersectObject(this.world);
       if (intersect.length) {
         const point = intersect[0].point;
