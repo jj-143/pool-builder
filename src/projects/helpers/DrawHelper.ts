@@ -11,6 +11,25 @@ export default class DrawHelper {
     this.pool = pool;
   }
 
+  attachShortcuts() {
+    document.addEventListener("keydown", ({ key }) => {
+      switch (key) {
+        case "1":
+          this.drawRectangle(2, 1);
+          break;
+        case "2":
+          this.drawRectangle(2, 2);
+          break;
+        case "3":
+          this.drawCircle(1, 32);
+          break;
+        case "4":
+          this.drawPlus();
+          break;
+      }
+    });
+  }
+
   drawPlus() {
     // 3 vertices starting from bottom-right vertex,
     // north, west, south, east order

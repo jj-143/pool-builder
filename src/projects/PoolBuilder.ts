@@ -40,7 +40,8 @@ export default class PoolBuilder extends Project {
 
     /* Helpers */
     this.dropHelper.attachDragWater();
-    this.drawHelper.drawPlus();
+    this.drawHelper.attachShortcuts();
+    this.drawHelper.drawRectangle(2, 1);
   }
 
   override animate() {
