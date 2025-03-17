@@ -28,11 +28,12 @@ export default class TextureOverlay {
   }
 
   render() {
+    const oldValue = App.renderer.outputColorSpace;
     App.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     this.sprites.forEach((sprite) => {
       App.renderer.render(sprite, this.camera);
     });
-    App.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    App.renderer.outputColorSpace = oldValue;
   }
 
   updateDimensions() {
