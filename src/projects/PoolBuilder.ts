@@ -76,13 +76,13 @@ export default class PoolBuilder extends Project {
 
   private async loadTextures() {
     return Promise.all([
-      importTexture(assets.tileCol, "tileCol"),
+      importTexture(assets.tileCol, "tileCol", THREE.SRGBColorSpace),
       importTexture(assets.tileNrm, "tileNrm"),
-      importTexture(assets.worldCol, "worldCol"),
+      importTexture(assets.worldCol, "worldCol", THREE.SRGBColorSpace),
       importTexture(assets.worldNrm, "worldNrm"),
-      importTexture(assets.copingCol, "copingCol"),
+      importTexture(assets.copingCol, "copingCol", THREE.SRGBColorSpace),
       importTexture(assets.copingNrm, "copingNrm"),
-      importTexture(assets.envMap, "envMap"),
+      importTexture(assets.envMap, "envMap", THREE.SRGBColorSpace),
     ]);
   }
 

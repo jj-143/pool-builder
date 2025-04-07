@@ -30,10 +30,13 @@ export async function loadTexture(url: string): Promise<THREE.Texture> {
 export async function importTexture(
   url: string,
   key: keyof typeof uniforms,
+  colorSpace: THREE.ColorSpace = THREE.NoColorSpace,
 ): Promise<THREE.Texture> {
   const texture = await loadTexture(url);
   uniforms[key].value = texture;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
+
+  texture.colorSpace = colorSpace;
   return texture;
 }
