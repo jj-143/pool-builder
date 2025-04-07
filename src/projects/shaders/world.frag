@@ -21,7 +21,7 @@ void main() {
   vec3 view = normalize(cameraPosition - vPosition);
   vec3 r = normalize(reflect(-view, normal));
 
-  float diff = clamp(lightIntensity * dot(normal, light), 0.0, 1.0);
+  float diff = lightIntensity * clamp(dot(normal, light), 0.0, 1.0);
   float spec = lightIntensity * pow(clamp(dot(light, r), 0.0, 1.0) , 1500.0);
 
   vec3 color = (diff + AMBIENT) * col * 0.9 + spec * 1.0;

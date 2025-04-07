@@ -81,7 +81,7 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   vec3 r = reflect(dir, normal);
   vec3 refractedLight = -refract(-light, vec3(0,1,0), IOR);
 
-  float diff = clamp(lightIntensity * dot(normal, refractedLight), 0.0, 1.0);
+  float diff = lightIntensity * clamp(dot(normal, refractedLight), 0.0, 1.0);
   float spec = lightIntensity * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
 
   /* Caustics */

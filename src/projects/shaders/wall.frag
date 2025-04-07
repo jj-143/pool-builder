@@ -47,7 +47,7 @@ void main() {
   vec3 eye = normalize(vPosition - cameraPosition);
   vec3 r = normalize(reflect(eye, normal));
 
-  float diff = clamp(lightIntensity * dot(normal, light), 0.2, 1.0);
+  float diff = lightIntensity * clamp(dot(normal, light), 0.0, 1.0);
   float specular = lightIntensity * pow(clamp(dot(light, r), 0.0, 1.0) , 1500.0);
 
   vec3 color = (ambient + diff) * tileColor.rgb + specular * 10.0;
