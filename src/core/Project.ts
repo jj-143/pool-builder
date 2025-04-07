@@ -19,6 +19,9 @@ export default class Project {
 
   animate() {
     this.render();
+    if (this.uiGroup.visible) {
+      this.textureOverlay.render();
+    }
   }
 
   async load() {
@@ -28,9 +31,6 @@ export default class Project {
 
   render() {
     App.renderer.render(this.scene, this.camera);
-    if (this.uiGroup.visible) {
-      this.textureOverlay.render();
-    }
   }
 
   start() {}

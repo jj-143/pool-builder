@@ -52,7 +52,7 @@ export default class PoolBuilder extends Project {
       }
     }
     this.pool.caustics.render();
-    this.render();
+    super.animate();
   }
 
   override toggleOverlays() {
