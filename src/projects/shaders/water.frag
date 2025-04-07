@@ -6,6 +6,7 @@ uniform sampler2D tileNrm;
 uniform sampler2D envMap;
 
 uniform vec3 light;
+uniform float lightIntensity;
 
 varying vec3 vPosition;
 varying vec3 vNormal;
@@ -16,7 +17,6 @@ uniform float poolDepth;
 uniform float surfaceY;
 uniform float tileRepeat;
 
-float LIGHT_INTENSITY = 1.0;
 float AMBIENT = 0.4;
 
 vec2 directionToEquirectangularUV(vec3 dir) {
@@ -81,8 +81,8 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
   vec3 r = reflect(dir, normal);
   vec3 refractedLight = -refract(-light, vec3(0,1,0), IOR);
 
-  float diff = clamp(LIGHT_INTENSITY * dot(normal, refractedLight), 0.0, 1.0);
-  float spec = LIGHT_INTENSITY * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
+  float diff = clamp(lightIntensity * dot(normal, refractedLight), 0.0, 1.0);
+  float spec = lightIntensity * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
 
   /* Caustics */
   vec2 surfaceCoord = (
@@ -111,7 +111,7 @@ void main() {
   if (rSurface.y < 0.0) {
     colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR));
   } else {
-    float specSurface = LIGHT_INTENSITY * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
+    float specSurface = lightIntensity * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
     vec2 uv = directionToEquirectangularUV(rSurface);
     vec3 env = texture2D(envMap, fract(uv)).rgb;
     colReflection = specSurface * 10.0 + env;

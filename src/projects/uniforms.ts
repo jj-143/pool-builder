@@ -14,6 +14,7 @@ const uniforms = {
   poolSize: { value: config.POOL_SIZE },
 
   light: { value: new THREE.Vector3(...config.SUN_POS).normalize() },
+  lightIntensity: { value: 1 },
 
   water: { value: null as THREE.Texture | null },
   causticsTex: { value: null as THREE.Texture | null },

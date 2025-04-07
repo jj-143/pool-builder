@@ -4,6 +4,7 @@ uniform float poolDepth;
 uniform bool isCoping;
 
 uniform vec3 light;
+uniform float lightIntensity;
 
 uniform sampler2D tileCol;
 uniform sampler2D tileNrm;
@@ -19,7 +20,6 @@ varying vec3 vTangent;
 varying vec3 vBitangent;
 varying vec3 vNormal;
 
-float lightIntensity = 1.0;
 float AMBIENT_WALL = 0.4;
 float AMBIENT_COPING = 0.0;
 
