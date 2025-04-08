@@ -13,6 +13,7 @@ export default class Project {
   constructor() {
     this.scene = new THREE.Scene();
     this.uiGroup = new THREE.Group();
+    this.camera = this.createDefaultCamera();
     this.scene.add(this.uiGroup);
     this.textureOverlay = new TextureOverlay();
   }
@@ -25,7 +26,6 @@ export default class Project {
   }
 
   async load() {
-    this.camera = this.createDefaultCamera();
     this.scene.add(this.camera);
   }
 
