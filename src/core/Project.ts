@@ -35,6 +35,10 @@ export default class Project {
 
   start() {}
 
+  onContainerResize(width: number, height: number) {
+    this.textureOverlay.updateDimensions();
+  }
+
   toggleOverlays() {
     this.uiGroup.visible = !this.uiGroup.visible;
   }

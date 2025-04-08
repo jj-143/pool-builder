@@ -37,8 +37,8 @@ export default class TextureOverlay {
   }
 
   updateDimensions() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const [width, height] = App.containerSize;
+
     this.camera.left = -width / 2;
     this.camera.right = width / 2;
     this.camera.top = height / 2;
@@ -56,6 +56,5 @@ export default class TextureOverlay {
   private init() {
     this.camera.position.set(0, 0, 1);
     this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions.bind(this));
   }
 }

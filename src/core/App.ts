@@ -160,6 +160,7 @@ export default class App {
       this.project.camera.updateProjectionMatrix();
     }
     this.renderer.setSize(w, h);
+    this.project?.onContainerResize?.(w, h);
     this.project?.render();
   }
 
