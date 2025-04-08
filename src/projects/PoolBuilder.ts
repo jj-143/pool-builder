@@ -6,6 +6,7 @@ import Project from "@core/Project";
 import assets from "~/assets";
 import DrawHelper from "~/helpers/DrawHelper";
 import DropHelper from "~/helpers/DropHelper";
+import PostProcessing from "~/helpers/PostProcessing";
 import Pool from "~/lib/Pool";
 import uniforms from "~/uniforms";
 import { createSphere, importTexture } from "~/utils";
@@ -15,6 +16,7 @@ export default class PoolBuilder extends Project {
   clock: THREE.Clock;
   drawHelper: DrawHelper;
   dropHelper: DropHelper;
+  postProcessing: PostProcessing;
 
   constructor() {
     super();
@@ -22,6 +24,7 @@ export default class PoolBuilder extends Project {
     this.clock = new THREE.Clock();
     this.drawHelper = new DrawHelper(this.pool);
     this.dropHelper = new DropHelper(this.pool);
+    this.postProcessing = new PostProcessing(this);
   }
 
   override async load() {
@@ -37,6 +40,7 @@ export default class PoolBuilder extends Project {
     this.pool.init();
     this.initSun();
     this.initEnvironmentMap();
+    this.postProcessing.init();
 
     /* Helpers */
     this.dropHelper.attachDragWater();
@@ -55,9 +59,18 @@ export default class PoolBuilder extends Project {
     super.animate();
   }
 
+  override render() {
+    this.postProcessing.render();
+  }
+
   override toggleOverlays() {
     super.toggleOverlays();
     this.pool.toggleMode("normal");
+  }
+
+  override onContainerResize(width: number, height: number) {
+    super.onContainerResize(width, height);
+    this.postProcessing.setSize(width, height);
   }
 
   private initCamera() {
