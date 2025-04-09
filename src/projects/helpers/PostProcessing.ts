@@ -16,9 +16,9 @@ export default class PostProcessing {
 
   private params = {
     bloom: {
-      threshold: 5.1,
-      strength: 0.5,
-      radius: 0.08,
+      threshold: 3.0,
+      strength: 0.13,
+      radius: 0.05,
     },
     exposure: 1.0,
   };

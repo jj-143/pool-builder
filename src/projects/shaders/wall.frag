@@ -20,8 +20,19 @@ varying vec3 vTangent;
 varying vec3 vBitangent;
 varying vec3 vNormal;
 
+const float PI = 3.14159;
+const float INV_PI = 1.0 / 3.14159265;
+
 float AMBIENT_WALL = 0.4;
-float AMBIENT_COPING = 0.0;
+float AMBIENT_COPING = 0.2;
+
+// Modified Blinn-Phong
+const float r_d = 0.98;
+const float r_s = 1.0 - r_d;
+const float n_s = 20000.0;
+
+// Normalization factor for specular, for large n_s
+const float N = (n_s + 6.0) / (8.0 * PI); 
 
 void main() {
   mat3 TBN = mat3(vTangent, vBitangent, vNormal);
@@ -43,13 +54,14 @@ void main() {
   }
 
   vec3 normal = normalize(TBN * tileNormal.rgb);
+  vec3 view = normalize(cameraPosition - vPosition);
+  vec3 halfway = normalize(view + light);
 
-  vec3 eye = normalize(vPosition - cameraPosition);
-  vec3 r = normalize(reflect(eye, normal));
+  float NoL = clamp(dot(normal, light), 0.0, 1.0);
+  float NoH = clamp(dot(normal, halfway), 0.0, 1.0);
 
-  float diff = lightIntensity * clamp(dot(normal, light), 0.0, 1.0);
-  float specular = lightIntensity * pow(clamp(dot(light, r), 0.0, 1.0) , 1500.0);
-
-  vec3 color = (ambient + diff) * tileColor.rgb + specular * 10.0;
+  vec3 diff = r_d * INV_PI * tileColor.rgb;
+  float spec = r_s * N * pow(NoH , n_s);
+  vec3 color = ambient * tileColor.rgb + lightIntensity * NoL * (diff + spec);
   gl_FragColor = vec4(color, 1);
 }

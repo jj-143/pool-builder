@@ -17,7 +17,18 @@ uniform float poolDepth;
 uniform float surfaceY;
 uniform float tileRepeat;
 
+const float PI = 3.14159265;
+const float INV_PI = 1.0 / 3.14159265;
+
 float AMBIENT = 0.4;
+
+// Modified Blinn-Phong
+const float r_d = 0.99;      // For floor tile
+const float r_s = 1.0 - r_d; // For floor tile
+const float n_s = 20000.0;   // Tile & Water surface, very low roughness
+
+// Normalization factor for specular, for large n_s
+const float N = (n_s + 6.0) / (8.0 * PI); 
 
 vec2 directionToEquirectangularUV(vec3 dir) {
     float u = atan(dir.z, dir.x) / (2.0 * 3.14159265) + 0.5;
@@ -46,7 +57,7 @@ float getShadow(vec3 pos, vec3 lightDir) {
   return 1.0 / (1.0 + exp(-400.0 * dy / denom));
 }
 
-vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
+vec3 getUnderWaterColor(vec3 pos, vec3 dir, float Li) {
   float t;
   int index = intersectPool(pos, dir, t);
   if (index < 0) discard;
@@ -78,47 +89,63 @@ vec3 getUnderWaterColor(vec3 pos, vec3 dir) {
 
   mat3 TBN = mat3(tangent, bitangent, hitNormal);
   vec3 normal = normalize(TBN * nrm.rgb);
-  vec3 r = reflect(dir, normal);
   vec3 refractedLight = -refract(-light, vec3(0,1,0), IOR);
+  vec3 halfway = normalize(-dir + refractedLight);
 
-  float diff = lightIntensity * clamp(dot(normal, refractedLight), 0.0, 1.0);
-  float spec = lightIntensity * pow(clamp(dot(refractedLight, r), 0.0, 1.0) , 1500.0);
+  float NoL = clamp(dot(normal, refractedLight), 0.0, 1.0);
+  float NoH = clamp(dot(normal, halfway), 0.0, 1.0);
+
+  // Modified Blinn-Phong
+  vec3 diff = r_d * INV_PI * col;
+  float spec = r_s * N * pow(NoH , n_s);
 
   /* Caustics */
   vec2 surfaceCoord = (
     hit.xz + (surfaceY - hit.y) * refractedLight.xz / refractedLight.y
   ) * 0.5 + 0.5;
   float caustics = texture2D(causticsTex, surfaceCoord).r;
+  caustics = min(.2 + 0.5 * caustics, 50.0);
 
   /* Shadow */
   float shadow = getShadow(hit, refractedLight);
 
-  return (AMBIENT + diff * (0.50 + 0.25 * caustics) * shadow) * col
-    + spec * 10.0 * shadow;
+  return AMBIENT * col + Li * NoL * (diff + spec) * caustics * shadow;
+}
+
+vec3 getSkyAmbient(vec3 lightDir) {
+  vec2 uv = directionToEquirectangularUV(-lightDir);
+  vec3 env = texture2D(envMap, fract(uv)).rgb;
+  return env;
 }
 
 void main() {
   vec3 look = normalize(vPosition - cameraPosition);
+  float NoL = clamp(dot(vNormal, light), 0.0, 1.0);
+  float LiTransmission = NoL * lightIntensity;
 
   /* Refraction */
   vec3 refractedLook = refract(look, vNormal, IOR);
-  vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook);
+  vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook, LiTransmission);
 
   /* Reflection */
   vec3 colReflection;
   vec3 rSurface = reflect(look, vNormal);
 
   if (rSurface.y < 0.0) {
-    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR));
+    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR), LiTransmission);
   } else {
-    float specSurface = lightIntensity * pow(clamp(dot(light, rSurface), 0.0, 1.0) , 1500.0);
+    vec3 halfway = normalize(-look + light);
+    float NoH = clamp(dot(vNormal, halfway), 0.0, 1.0);
+    float spec = N * pow(NoH , n_s);
+
     vec2 uv = directionToEquirectangularUV(rSurface);
     vec3 env = texture2D(envMap, fract(uv)).rgb;
-    colReflection = specSurface * 10.0 + env;
+
+    colReflection = lightIntensity * spec * NoL + env;
   }
 
   /* Fresnel mix with F0 as 2% */
-  float fresnel = mix(0.02, 1.0, pow(1.0 - dot(vNormal, -look), 3.0));
+  float fresnel = mix(0.02, 1.0, pow(1.0 - dot(vNormal, -look), 5.0));
   vec3 color = mix(colRefraction,  colReflection, fresnel);
 
   gl_FragColor = vec4(color, 1);
