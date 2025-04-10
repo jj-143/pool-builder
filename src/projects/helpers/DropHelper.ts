@@ -6,8 +6,8 @@ import config from "~/config";
 import Pool from "~/lib/Pool";
 
 export default class DropHelper {
-  size = 0.025;
-  amount = 0.008;
+  size = 0.018;
+  amount = 0.006;
   private pool: Pool;
   private DEVDropCount = 0;
 
