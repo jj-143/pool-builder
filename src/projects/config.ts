@@ -21,4 +21,9 @@ const config = {
   },
 };
 
+export const layers = {
+  DEFAULT: 0,
+  AA: 1,
+};
+
 export default config;

@@ -102,6 +102,5 @@ export default class PoolBuilder extends Project {
   private async initEnvironmentMap() {
     const texture = uniforms["envMap"].value!;
     texture.mapping = THREE.EquirectangularReflectionMapping;
-    this.scene.background = texture;
   }
 }

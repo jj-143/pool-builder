@@ -47,11 +47,9 @@ export default class Coping extends THREE.Mesh {
     const material = MATERIAL.clone();
     super(makeGeometry(p0, p1), material);
 
-    material.depthFunc = THREE.AlwaysDepth;
     material.uniforms = this.uniforms;
     this.uniforms["width"].value = p0.distanceTo(p1);
 
-    this.renderOrder = 1; // above World
     this.baPosition = this.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
