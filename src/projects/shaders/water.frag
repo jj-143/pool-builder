@@ -9,10 +9,10 @@ uniform vec3 light;
 uniform float lightIntensity;
 
 varying vec3 vPosition;
-varying vec3 vNormal;
 varying vec3 vTangent;
 varying vec3 vBitangent;
 
+uniform float poolSize;
 uniform float poolDepth;
 uniform float surfaceY;
 uniform float tileRepeat;
@@ -119,23 +119,28 @@ vec3 getSkyAmbient(vec3 lightDir) {
 }
 
 void main() {
-  vec3 look = normalize(vPosition - cameraPosition);
-  float NoL = clamp(dot(vNormal, light), 0.0, 1.0);
+  vec3 position = vPosition;
+  vec4 info = texture2D(water, position.xz / poolSize + 0.5);
+  position.y += info.r;
+  vec3 normal = normalize(vec3(info.b, sqrt(1.0 - dot(info.ba, info.ba)), info.a)).xyz;
+
+  vec3 look = normalize(position - cameraPosition);
+  float NoL = clamp(dot(normal, light), 0.0, 1.0);
   float LiTransmission = NoL * lightIntensity;
 
   /* Refraction */
-  vec3 refractedLook = refract(look, vNormal, IOR);
-  vec3 colRefraction = getUnderWaterColor(vPosition, refractedLook, LiTransmission);
+  vec3 refractedLook = refract(look, normal, IOR);
+  vec3 colRefraction = getUnderWaterColor(position, refractedLook, LiTransmission);
 
   /* Reflection */
   vec3 colReflection;
-  vec3 rSurface = reflect(look, vNormal);
+  vec3 rSurface = reflect(look, normal);
 
   if (rSurface.y < 0.0) {
-    colReflection = getUnderWaterColor(vPosition, refract(rSurface, vNormal, IOR), LiTransmission);
+    colReflection = getUnderWaterColor(position, refract(rSurface, normal, IOR), LiTransmission);
   } else {
     vec3 halfway = normalize(-look + light);
-    float NoH = clamp(dot(vNormal, halfway), 0.0, 1.0);
+    float NoH = clamp(dot(normal, halfway), 0.0, 1.0);
     float spec = N * pow(NoH , n_s);
 
     vec2 uv = directionToEquirectangularUV(rSurface);
@@ -145,7 +150,7 @@ void main() {
   }
 
   /* Fresnel mix with F0 as 2% */
-  float fresnel = mix(0.02, 1.0, pow(1.0 - dot(vNormal, -look), 5.0));
+  float fresnel = mix(0.02, 1.0, pow(1.0 - dot(normal, -look), 5.0));
   vec3 color = mix(colRefraction,  colReflection, fresnel);
 
   gl_FragColor = vec4(color, 1);
