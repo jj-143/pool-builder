@@ -7,7 +7,16 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import App from "@core/App";
 import type Project from "@core/Project";
 
-export default class PostProcessing {
+export interface Compositor {
+  init(): void;
+  setSize(width: number, height: number): void;
+  render(): void;
+}
+
+/**
+ * Compositor - Manages render passes, postfx, tonemapping, etc
+ */
+export default class MainCompositor implements Compositor {
   private project: Project;
   private renderComposer: EffectComposer;
 
