@@ -5,6 +5,7 @@ import {
   CopyPass,
   EffectComposer,
   EffectPass,
+  FXAAEffect,
   RenderPass,
   ToneMappingEffect,
   ToneMappingMode,
@@ -57,7 +58,7 @@ export default class MainCompositor implements Compositor {
     // Render layer - layers.AA (Coping only)
     this.renderAAComposer = new EffectComposer(App.renderer, {
       frameBufferType: THREE.HalfFloatType,
-      multisampling: 4,
+      multisampling: config.AA == "MSAA" ? 4 : 0,
     });
     this.renderAAComposer.autoRenderToScreen = false;
 
@@ -97,6 +98,11 @@ export default class MainCompositor implements Compositor {
 
     // Render pass - layers.AA
     this.renderAAComposer.addPass(render);
+    if (config.AA == "FXAA") {
+      const effect = new FXAAEffect();
+      const fxaa = new EffectPass(this.project.camera, effect);
+      this.renderAAComposer.addPass(fxaa);
+    }
 
     // Final (post, tonemapping)
     this.renderComposer.addPass(copyToFinal);

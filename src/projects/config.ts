@@ -19,6 +19,7 @@ const config = {
   DEFINES: {
     IOR: `${1 / 1.33}`,
   },
+  AA: "FXAA" as "NONE" | "MSAA" | "FXAA",
 };
 
 export const layers = {
