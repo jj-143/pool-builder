@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
-import config from "~/config";
+import config, { layers } from "~/config";
 import StencilHelper from "~/helpers/StencilHelper";
 import Caustics from "~/lib/Caustics";
 import WaterSimulation from "~/lib/WaterSimulation";
@@ -140,6 +140,7 @@ export default class Pool implements ModelEventListener {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.setY(config.SURFACE_Y);
     mesh.renderOrder = 1; // after stencil
+    mesh.layers.set(layers.SCENE);
     App.instance.project!.scene.add(mesh);
     return mesh;
   }
@@ -163,6 +164,7 @@ export default class Pool implements ModelEventListener {
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.renderOrder = 1; // after stencil
+    mesh.layers.set(layers.SCENE);
     App.instance.project!.scene.add(mesh);
     return mesh;
   }
@@ -183,6 +185,8 @@ export default class Pool implements ModelEventListener {
   }
 
   private handleWorldClick(rc: THREE.Raycaster, { button }: MouseEvent) {
+    rc.layers.enableAll();
+
     // Hover on Node
     {
       const nodeOnHover = rc.intersectObjects(this.model.nodes, false)[0]

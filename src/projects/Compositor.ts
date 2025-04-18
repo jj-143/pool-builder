@@ -32,6 +32,7 @@ export default class MainCompositor implements Compositor {
   private renderComposer: EffectComposer;
   private renderAAComposer: EffectComposer;
   private finalComposer: EffectComposer;
+  private renderUIComposer: EffectComposer;
 
   private params = {
     bloom: {
@@ -48,7 +49,7 @@ export default class MainCompositor implements Compositor {
   constructor(project: Project) {
     this.project = project;
 
-    // Render layer - layers.DEFAULT (scene & background)
+    // Render layer - layers.SCENE (scene & background)
     this.renderComposer = new EffectComposer(App.renderer, {
       frameBufferType: THREE.HalfFloatType,
       stencilBuffer: true,
@@ -67,6 +68,11 @@ export default class MainCompositor implements Compositor {
       frameBufferType: THREE.HalfFloatType,
       depthBuffer: false,
     });
+
+    // Render layer - layers.UI
+    this.renderUIComposer = new EffectComposer(App.renderer, {
+      depthBuffer: false,
+    });
   }
 
   init() {
@@ -81,6 +87,8 @@ export default class MainCompositor implements Compositor {
     const copyToFinal = new CopyPass(this.finalComposer.inputBuffer);
     const alphaBlendToFinal = new CopyPass(this.finalComposer.inputBuffer);
     alphaBlendToFinal.fullscreenMaterial.blending = THREE.CustomBlending;
+    const alphaBlendToUI = new CopyPass(this.renderUIComposer.inputBuffer);
+    alphaBlendToUI.fullscreenMaterial.blending = THREE.CustomBlending;
 
     // Post
     const effects = new EffectPass(
@@ -92,7 +100,7 @@ export default class MainCompositor implements Compositor {
     // ----------------------------------------------------------------------
     // Build graph
 
-    // Render pass - layers.DEFAULT
+    // Render pass - layers.SCENE
     this.renderComposer.addPass(render);
     this.renderComposer.addPass(new ClearPass(false, false, true)); // Stencil
 
@@ -108,18 +116,23 @@ export default class MainCompositor implements Compositor {
     this.renderComposer.addPass(copyToFinal);
     this.renderAAComposer.addPass(alphaBlendToFinal);
     this.finalComposer.addPass(effects);
+
+    // UI
+    this.renderUIComposer.addPass(render);
+    this.renderUIComposer.addPass(alphaBlendToUI);
   }
 
   setSize(width: number, height: number) {
     this.renderComposer.setSize(width, height);
     this.renderAAComposer.setSize(width, height);
     this.finalComposer.setSize(width, height);
+    this.renderUIComposer.setSize(width, height);
   }
 
   render() {
-    // Render pass - layers.DEFAULT
+    // Render pass - layers.SCENE
     this.project.scene.background = uniforms["envMap"].value;
-    this.project.camera.layers.set(layers.DEFAULT);
+    this.project.camera.layers.set(layers.SCENE);
     this.renderComposer.render();
 
     // Render pass - layers.AA
@@ -127,7 +140,11 @@ export default class MainCompositor implements Compositor {
     this.project.camera.layers.set(layers.AA);
     this.renderAAComposer.render();
 
-    // Mix, post, tonemapping
+    // Mix, post, tonemapping, render to screen
     this.finalComposer.render();
+
+    // Render pass (render to screen) - layers.UI
+    this.project.camera.layers.set(layers.UI);
+    this.renderUIComposer.render();
   }
 }

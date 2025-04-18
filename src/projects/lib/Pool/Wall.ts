@@ -34,6 +34,7 @@ export default class Wall extends THREE.Object3D {
     this.wallMesh = new THREE.Mesh(GEOMETRY, material);
     this.copingMesh = new Coping(nodes[1].point, nodes[0].point);
     this.copingMesh.layers.set(layers.AA);
+    this.wallMesh.layers.set(layers.SCENE);
 
     this.add(this.wallMesh);
     this.add(this.copingMesh);

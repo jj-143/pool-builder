@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
+import { layers } from "~/config";
 import Pool from "~/lib/Pool";
 import uniforms from "~/uniforms";
 
@@ -38,7 +39,10 @@ export default class StencilHelper {
 
     const geometry = new THREE.ShapeGeometry(shape, 2);
     geometry.rotateX(Math.PI / 2);
-    return new THREE.Mesh(geometry, material);
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.layers.set(layers.SCENE);
+    return mesh;
   }
 
   /**

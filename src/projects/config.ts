@@ -23,8 +23,9 @@ const config = {
 };
 
 export const layers = {
-  DEFAULT: 0,
-  AA: 1,
+  UI: 0, // UI & THREE's internal (e.g, TransformControls)
+  SCENE: 1,
+  AA: 2,
 };
 
 export default config;

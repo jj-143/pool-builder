@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import App from "@core/App";
 
-import config from "~/config";
+import config, { layers } from "~/config";
 import uniforms from "~/uniforms";
 
 import dropWaterShader from "./dropWater.frag?raw";
@@ -81,6 +81,10 @@ export default class WaterSimulation {
     this.dropMesh = new THREE.Mesh(this.geometry, dropMaterial);
     this.updateMesh = new THREE.Mesh(this.geometry, updateMaterial);
     this.updateNormalMesh = new THREE.Mesh(this.geometry, updateNormalMaterial);
+
+    [this.dropMesh, this.updateMesh, this.updateNormalMesh].forEach((mesh) => {
+      mesh.layers.set(layers.SCENE);
+    });
   }
 
   // Add a drop of water at the (x, y) coordinate (in the range [-1, 1])
@@ -110,6 +114,7 @@ export default class WaterSimulation {
    */
   renderStencil(mesh: THREE.Mesh) {
     const oldTarget = App.renderer.getRenderTarget();
+    this.camera.layers.set(layers.SCENE);
 
     App.renderer.setRenderTarget(this.targetA);
     App.renderer.clearStencil();
