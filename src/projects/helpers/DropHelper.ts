@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { seededRandom } from "three/src/math/MathUtils";
 
 import App from "@core/App";
 
@@ -8,8 +9,8 @@ import Pool from "~/lib/Pool";
 export default class DropHelper {
   size = 0.018;
   amount = 0.006;
+  DEVSeed = 0;
   private pool: Pool;
-  private DEVDropCount = 0;
 
   constructor(pool: Pool) {
     this.pool = pool;
@@ -61,18 +62,13 @@ export default class DropHelper {
   }
 
   /**
-   * Drop at random / fixed position at fixed rate.
+   * Drop randomly [x,y] from each dim in [-POOL_SIZE/2, POOL_SIZE],
+   * deterministically
    */
   DEVRandomDrop() {
-    if (this.pool.sim.step % 30 != 0) return;
-    const points = [[0.1, 0.4]];
-    const pos = points[this.DEVDropCount % points.length];
-    this.pool.sim.addDrop(
-      pos[0] * (2 / config.POOL_SIZE),
-      pos[1] * (2 / config.POOL_SIZE),
-      this.size,
-      (this.DEVDropCount & 1 ? 1 : -1) * this.amount,
-    );
-    this.DEVDropCount++;
+    const u = seededRandom(this.DEVSeed++) * 2 - 1;
+    const v = seededRandom(this.DEVSeed++) * 2 - 1;
+    const point = new THREE.Vector2(u, v).multiplyScalar(config.POOL_SIZE);
+    this.pool.sim.addDrop(point.x, point.y, this.size, this.amount);
   }
 }
