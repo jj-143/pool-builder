@@ -1,14 +1,20 @@
+import {
+  BloomEffect,
+  BloomEffectOptions,
+  ClearPass,
+  CopyPass,
+  EffectComposer,
+  EffectPass,
+  RenderPass,
+  ToneMappingEffect,
+  ToneMappingMode,
+} from "postprocessing";
 import * as THREE from "three";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 
 import App from "@core/App";
 import type Project from "@core/Project";
 
-import { layers } from "~/config";
-import AlphaMixPass from "~/lib/AlphaMixPass";
+import config, { layers } from "~/config";
 import uniforms from "~/uniforms";
 
 export interface Compositor {
@@ -28,10 +34,13 @@ export default class MainCompositor implements Compositor {
 
   private params = {
     bloom: {
-      threshold: 3.0,
-      strength: 0.13,
-      radius: 0.05,
-    },
+      luminanceThreshold: 5,
+      luminanceSmoothing: 50,
+      mipmapBlur: true,
+      intensity: 0.12,
+      radius: 0.7,
+      levels: 4,
+    } satisfies BloomEffectOptions,
     exposure: 1.0,
   };
 
@@ -39,57 +48,60 @@ export default class MainCompositor implements Compositor {
     this.project = project;
 
     // Render layer - layers.DEFAULT (scene & background)
-    const target0 = new THREE.WebGLRenderTarget(0, 0, {
-      type: THREE.HalfFloatType,
+    this.renderComposer = new EffectComposer(App.renderer, {
+      frameBufferType: THREE.HalfFloatType,
       stencilBuffer: true,
     });
-    this.renderComposer = new EffectComposer(App.renderer, target0);
-    this.renderComposer.renderToScreen = false;
+    this.renderComposer.autoRenderToScreen = false;
 
     // Render layer - layers.AA (Coping only)
-    const targetAA = new THREE.WebGLRenderTarget(0, 0, {
-      type: THREE.HalfFloatType,
-      samples: 4,
+    this.renderAAComposer = new EffectComposer(App.renderer, {
+      frameBufferType: THREE.HalfFloatType,
+      multisampling: 4,
     });
-    this.renderAAComposer = new EffectComposer(App.renderer, targetAA);
-    this.renderAAComposer.renderToScreen = false;
+    this.renderAAComposer.autoRenderToScreen = false;
 
     // Final composer - mix & postfx
-    const finalTarget = new THREE.WebGLRenderTarget(0, 0, {
-      type: THREE.HalfFloatType,
+    this.finalComposer = new EffectComposer(App.renderer, {
+      frameBufferType: THREE.HalfFloatType,
+      depthBuffer: false,
     });
-    this.finalComposer = new EffectComposer(App.renderer, finalTarget);
   }
 
   init() {
     App.renderer.toneMappingExposure = this.params.exposure;
-    App.renderer.toneMapping = THREE.NeutralToneMapping;
+    App.renderer.toneMapping = THREE.NoToneMapping;
 
     // ----------------------------------------------------------------------
     // Passes
     const render = new RenderPass(this.project.scene, this.project.camera);
 
-    const alphaMix = new AlphaMixPass(
-      this.renderComposer.renderTarget2.texture,
-      this.renderAAComposer.renderTarget2.texture,
-    );
+    // Alpha blend render passes
+    const copyToFinal = new CopyPass(this.finalComposer.inputBuffer);
+    const alphaBlendToFinal = new CopyPass(this.finalComposer.inputBuffer);
+    alphaBlendToFinal.fullscreenMaterial.blending = THREE.CustomBlending;
 
-    const bloom = new UnrealBloomPass(
-      new THREE.Vector2(...App.containerSize),
-      this.params.bloom.strength,
-      this.params.bloom.radius,
-      this.params.bloom.threshold,
+    // Post
+    const effects = new EffectPass(
+      this.project.camera,
+      new BloomEffect(this.params.bloom),
+      new ToneMappingEffect({ mode: ToneMappingMode.NEUTRAL }),
     );
-
-    const output = new OutputPass();
 
     // ----------------------------------------------------------------------
     // Build graph
+
+    // Render pass - layers.DEFAULT
     this.renderComposer.addPass(render);
+    this.renderComposer.addPass(new ClearPass(false, false, true)); // Stencil
+
+    // Render pass - layers.AA
     this.renderAAComposer.addPass(render);
-    this.finalComposer.addPass(alphaMix);
-    this.finalComposer.addPass(bloom);
-    this.finalComposer.addPass(output);
+
+    // Final (post, tonemapping)
+    this.renderComposer.addPass(copyToFinal);
+    this.renderAAComposer.addPass(alphaBlendToFinal);
+    this.finalComposer.addPass(effects);
   }
 
   setSize(width: number, height: number) {
@@ -109,7 +121,7 @@ export default class MainCompositor implements Compositor {
     this.project.camera.layers.set(layers.AA);
     this.renderAAComposer.render();
 
-    // Mix, Post, Tonemapping
+    // Mix, post, tonemapping
     this.finalComposer.render();
   }
 }
