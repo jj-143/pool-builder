@@ -21,7 +21,7 @@ export default class Caustics {
       TEXTURE_SIZE,
       TEXTURE_SIZE,
       {
-        type: THREE.FloatType,
+        type: THREE.HalfFloatType,
       },
     );
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 3);

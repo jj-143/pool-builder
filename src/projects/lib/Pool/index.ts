@@ -117,11 +117,12 @@ export default class Pool implements ModelEventListener {
   }
 
   private initSurface() {
+    // NOTE: Uses fragment normal so 1x1 segments
     const geometry = new THREE.PlaneGeometry(
       config.POOL_SIZE,
       config.POOL_SIZE,
-      200,
-      200,
+      1,
+      1,
     );
     geometry.rotateX(-Math.PI / 2);
 

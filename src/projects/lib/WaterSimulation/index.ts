@@ -41,11 +41,11 @@ export default class WaterSimulation {
     this.geometry = new THREE.PlaneGeometry(2, 2);
 
     this.targetA = new THREE.WebGLRenderTarget(TEXTURE_SIZE, TEXTURE_SIZE, {
-      type: THREE.FloatType,
+      type: THREE.HalfFloatType,
       stencilBuffer: true,
     });
     this.targetB = new THREE.WebGLRenderTarget(TEXTURE_SIZE, TEXTURE_SIZE, {
-      type: THREE.FloatType,
+      type: THREE.HalfFloatType,
       stencilBuffer: true,
     });
     this.target = this.targetA;
