@@ -1,7 +1,6 @@
 import {
   BloomEffect,
   BloomEffectOptions,
-  ClearPass,
   CopyPass,
   EffectComposer,
   EffectPass,
@@ -32,7 +31,6 @@ export default class MainCompositor implements Compositor {
   private renderComposer: EffectComposer;
   private renderAAComposer: EffectComposer;
   private finalComposer: EffectComposer;
-  private renderUIComposer: EffectComposer;
 
   private params = {
     bloom: {
@@ -68,11 +66,6 @@ export default class MainCompositor implements Compositor {
       frameBufferType: THREE.HalfFloatType,
       depthBuffer: false,
     });
-
-    // Render layer - layers.UI
-    this.renderUIComposer = new EffectComposer(App.renderer, {
-      depthBuffer: false,
-    });
   }
 
   init() {
@@ -82,13 +75,12 @@ export default class MainCompositor implements Compositor {
     // ----------------------------------------------------------------------
     // Passes
     const render = new RenderPass(this.project.scene, this.project.camera);
+    const renderUI = new RenderPass(this.project.scene, this.project.camera);
 
     // Alpha blend render passes
     const copyToFinal = new CopyPass(this.finalComposer.inputBuffer);
     const alphaBlendToFinal = new CopyPass(this.finalComposer.inputBuffer);
     alphaBlendToFinal.fullscreenMaterial.blending = THREE.CustomBlending;
-    const alphaBlendToUI = new CopyPass(this.renderUIComposer.inputBuffer);
-    alphaBlendToUI.fullscreenMaterial.blending = THREE.CustomBlending;
 
     // Post
     const effects = new EffectPass(
@@ -101,8 +93,8 @@ export default class MainCompositor implements Compositor {
     // Build graph
 
     // Render pass - layers.SCENE
+    render.clearPass.setClearFlags(true, true, true);
     this.renderComposer.addPass(render);
-    this.renderComposer.addPass(new ClearPass(false, false, true)); // Stencil
 
     // Render pass - layers.AA
     this.renderAAComposer.addPass(render);
@@ -112,21 +104,25 @@ export default class MainCompositor implements Compositor {
       this.renderAAComposer.addPass(fxaa);
     }
 
-    // Final (post, tonemapping)
+    // Final - Mixing
     this.renderComposer.addPass(copyToFinal);
     this.renderAAComposer.addPass(alphaBlendToFinal);
+
+    // Final - Apply FX & Render to screen
+    effects.renderToScreen = true;
     this.finalComposer.addPass(effects);
 
-    // UI
-    this.renderUIComposer.addPass(render);
-    this.renderUIComposer.addPass(alphaBlendToUI);
+    // Render UI on top of the screen, for performance.
+    // Could use a separate renderUIComposer but it's more slower
+    renderUI.clearPass.enabled = false;
+    renderUI.renderToScreen = true;
+    this.finalComposer.addPass(renderUI);
   }
 
   setSize(width: number, height: number) {
     this.renderComposer.setSize(width, height);
     this.renderAAComposer.setSize(width, height);
     this.finalComposer.setSize(width, height);
-    this.renderUIComposer.setSize(width, height);
   }
 
   render() {
@@ -140,11 +136,8 @@ export default class MainCompositor implements Compositor {
     this.project.camera.layers.set(layers.AA);
     this.renderAAComposer.render();
 
-    // Mix, post, tonemapping, render to screen
-    this.finalComposer.render();
-
-    // Render pass (render to screen) - layers.UI
+    // Mix, post, tonemapping, render UI
     this.project.camera.layers.set(layers.UI);
-    this.renderUIComposer.render();
+    this.finalComposer.render();
   }
 }
