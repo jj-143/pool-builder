@@ -101,11 +101,6 @@ export default class App {
 
   private addOrbitControls(camera: THREE.Camera) {
     const controls = new OrbitControls(camera, this.renderer.domElement);
-    controls.mouseButtons = {
-      LEFT: null,
-      MIDDLE: THREE.MOUSE.ROTATE,
-      RIGHT: null,
-    };
     controls.minDistance = 0.01;
     controls.maxDistance = 1000;
     controls.target.set(0, 1, 0);
