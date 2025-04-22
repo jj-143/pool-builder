@@ -41,7 +41,7 @@ export default class App {
     App.container.appendChild(renderer.domElement);
 
     this.addShortcuts();
-    App.container.addEventListener("mouseup", () =>
+    App.container.addEventListener("pointerup", () =>
       this.setUIControlState("idle"),
     );
   }
@@ -94,9 +94,11 @@ export default class App {
       callback(raycaster, event);
     };
 
-    App.container.addEventListener("mouseup", handler, { capture: true });
+    App.container.addEventListener("pointerup", handler, { capture: true });
     return () =>
-      App.container.removeEventListener("mouseup", handler, { capture: true });
+      App.container.removeEventListener("pointerup", handler, {
+        capture: true,
+      });
   }
 
   private addOrbitControls(camera: THREE.Camera) {
