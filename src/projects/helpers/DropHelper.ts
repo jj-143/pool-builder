@@ -22,43 +22,39 @@ export default class DropHelper {
     const raycaster = new THREE.Raycaster();
     const camera = App.instance.project!.camera;
 
-    const checkBound = (pos: THREE.Vector3) => {
-      return -1 < pos.x && pos.x < 1 && -1 < pos.z && pos.z < 1;
-    };
-
-    const tryDrop = () => {
+    const findSurfaceIntersection = (event: MouseEvent) => {
+      const [w, h] = App.containerSize;
+      pointer.x = (event.offsetX / w) * 2 - 1;
+      pointer.y = -(event.offsetY / h) * 2 + 1;
       raycaster.setFromCamera(pointer, camera);
-      const ray = raycaster.ray;
-      const pSurface = ray.direction
-        .clone()
-        .multiplyScalar((config.SURFACE_Y - ray.origin.y) / ray.direction.y)
-        .add(ray.origin)
-        .multiplyScalar(2 / config.POOL_SIZE); // To simulation space [-1, 1]
-      if (!checkBound(pSurface)) return;
-      this.pool.sim.addDrop(pSurface.x, pSurface.z, this.size, this.amount);
+      return this.pool.stencilHelper.intersect(raycaster);
     };
 
     App.container.addEventListener("pointerdown", (event) => {
       if (event.button != 0) return;
       if (this.pool.mode != "normal") return;
       if (App.instance.uiControlState != "idle") return;
-      App.instance.setUIControlState("interacting");
-      const [w, h] = App.containerSize;
+
+      const intr = findSurfaceIntersection(event);
+      if (!intr) return;
+
       dragging = true;
-      pointer.x = (event.offsetX / w) * 2 - 1;
-      pointer.y = -(event.offsetY / h) * 2 + 1;
-      tryDrop();
+      App.instance.setUIControlState("interacting");
+      this.drop(intr.point);
     });
 
     App.container.addEventListener("pointermove", (event) => {
       if (!dragging) return;
-      const [w, h] = App.containerSize;
-      pointer.x = (event.offsetX / w) * 2 - 1;
-      pointer.y = -(event.offsetY / h) * 2 + 1;
-      tryDrop();
+      const intr = findSurfaceIntersection(event);
+      if (!intr) return;
+      this.drop(intr.point);
     });
 
     App.container.addEventListener("pointerup", () => (dragging = false));
+  }
+
+  drop(point: THREE.Vector3) {
+    this.pool.sim.addDrop(point.x, point.z, this.size, this.amount);
   }
 
   /**

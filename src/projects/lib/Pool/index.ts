@@ -33,7 +33,7 @@ export default class Pool implements ModelEventListener {
   caustics: Caustics;
   private world!: THREE.Mesh;
   private worldBoundary!: THREE.LineSegments;
-  private stencilHelper: StencilHelper;
+  stencilHelper: StencilHelper;
 
   constructor() {
     this.model = new Model(this);

@@ -55,4 +55,10 @@ export default class StencilHelper {
     App.instance.project!.scene.add(this.mesh);
     this.pool.sim.renderStencil(this.mesh);
   }
+
+  intersect(raycaster: THREE.Raycaster): THREE.Intersection | undefined {
+    if (!this.mesh) return undefined;
+    raycaster.layers.set(layers.SCENE);
+    return raycaster.intersectObject(this.mesh)[0];
+  }
 }
