@@ -12,6 +12,7 @@ varying vec3 vPosition;
 varying vec3 vTangent;
 varying vec3 vBitangent;
 
+uniform bool isPoolValid;
 uniform float poolSize;
 uniform float poolDepth;
 uniform float surfaceY;
@@ -119,6 +120,11 @@ vec3 getSkyAmbient(vec3 lightDir) {
 }
 
 void main() {
+  if (!isPoolValid) {
+    gl_FragColor = vec4(0.65, 0.1, 0.1, 1.0);
+    return;
+  }
+
   vec3 position = vPosition;
   vec4 info = texture2D(water, position.xz / poolSize + 0.5);
   position.y += info.r;

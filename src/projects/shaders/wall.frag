@@ -2,6 +2,7 @@ uniform float width;
 uniform float height;
 uniform float poolDepth;
 uniform bool isCoping;
+uniform bool isPoolValid;
 
 uniform vec3 light;
 uniform float lightIntensity;
@@ -63,5 +64,10 @@ void main() {
   vec3 diff = r_d * INV_PI * tileColor.rgb;
   float spec = r_s * N * pow(NoH , n_s);
   vec3 color = ambient * tileColor.rgb + lightIntensity * NoL * (diff + spec);
+
+  if (!isPoolValid) {
+    color = mix(color, vec3(1,0,0), 0.8);
+  }
+
   gl_FragColor = vec4(color, 1);
 }

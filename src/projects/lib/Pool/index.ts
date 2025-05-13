@@ -116,6 +116,13 @@ export default class Pool implements ModelEventListener {
     }
   }
 
+  /**
+   * @implements {ModelEventListener}
+   */
+  onChangeIsValid(isValid: boolean): void {
+    uniforms["isPoolValid"].value = isValid;
+  }
+
   private initSurface() {
     // NOTE: Uses fragment normal so 1x1 segments
     const geometry = new THREE.PlaneGeometry(

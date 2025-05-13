@@ -2,12 +2,14 @@ import * as THREE from "three";
 
 import config from "~/config";
 import Coping from "~/lib/Pool/Coping";
+import { segmentIntersect } from "~/lib/Pool/utils";
 
 import Node from "./Node";
 import Wall from "./Wall";
 
 export interface ModelEventListener {
   onChange(start: number, points: THREE.Vector2[], nPoints: number): void;
+  onChangeIsValid(isValid: boolean): void;
 }
 
 /**
@@ -19,6 +21,7 @@ export default class Model {
   walls: Wall[] = [];
   root: THREE.Object3D;
   private listener?: ModelEventListener;
+  private isValid = false;
 
   constructor(listener?: ModelEventListener) {
     this.root = new THREE.Object3D();
@@ -102,6 +105,8 @@ export default class Model {
     this.updateCopingEnd(i0);
     this.updateCopingEnd(i1);
     this.updateCopingEnd(i2);
+
+    this.validate();
   }
 
   private onRemoveNode(index: number) {
@@ -116,6 +121,8 @@ export default class Model {
 
     this.updateCopingEnd(prev);
     this.updateCopingEnd(index % n);
+
+    this.validate();
   }
 
   private onMoveNode(index: number) {
@@ -133,6 +140,8 @@ export default class Model {
     this.updateCopingEnd(i0);
     this.updateCopingEnd(i1);
     this.updateCopingEnd(i2);
+
+    this.validate();
   }
 
   /**
@@ -217,5 +226,50 @@ export default class Model {
     cp1.geometry.getAttribute("uv").setX(2, uvx1);
     cp0.geometry.getAttribute("uv").needsUpdate = true;
     cp1.geometry.getAttribute("uv").needsUpdate = true;
+  }
+
+  /**
+   * Check model validity, mark as such, and notify the listener
+   */
+  private validate() {
+    const isValidNew = !this.hasIntersection();
+    if (this.isValid === isValidNew) return;
+    this.isValid = isValidNew;
+    this.listener?.onChangeIsValid(isValidNew);
+  }
+
+  /**
+   * @returns `true` if wall i & wall j intersects
+   */
+  private wallIntersect(i: number, j: number): boolean {
+    const iEnd = (i + 1) % this.nodes.length;
+    const jEnd = (j + 1) % this.nodes.length;
+
+    const [pStart, pEnd, qStart, qEnd] = [i, iEnd, j, jEnd].map(
+      (idx) => this.nodes[idx].point,
+    );
+
+    return segmentIntersect(pStart, pEnd, qStart, qEnd);
+  }
+
+  /**
+   * Check if there's any wall intersection.
+   * NOTE: Ajacent walls are *NOT* considered as an intersection.
+   */
+  hasIntersection(): boolean {
+    const n = this.nodes.length;
+
+    for (let i = 0; i < n; i++) {
+      // Skip same wall and the next wall
+      for (let j = i + 2; j < n; j++) {
+        const [jStart, jEnd] = [j % n, (j + 1) % n];
+
+        if (jEnd == i) continue; // only for (i=0) && (jEnd is the last node)
+
+        if (this.wallIntersect(i, jStart)) return true;
+      }
+    }
+
+    return false;
   }
 }

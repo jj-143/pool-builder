@@ -12,6 +12,7 @@ const uniforms = {
   poolDepth: { value: config.POOL_DEPTH },
   surfaceY: { value: config.SURFACE_Y },
   poolSize: { value: config.POOL_SIZE },
+  isPoolValid: { value: true },
 
   light: { value: new THREE.Vector3(...config.SUN_POS).normalize() },
   lightIntensity: { value: 3 },
