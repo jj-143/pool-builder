@@ -3,6 +3,8 @@ import { TransformControls } from "three/examples/jsm/controls/TransformControls
 
 import App from "@core/App";
 
+import config from "~/config";
+
 const COLOR_NORMAL = "lightseagreen";
 const COLOR_ACTIVE = "gold";
 
@@ -33,7 +35,15 @@ export default class Node extends THREE.Mesh {
     this.setActive(false);
   }
 
+  private clampToSurfaceBound() {
+    const halfW = config.POOL_SIZE / 2;
+    this.position.x = THREE.MathUtils.clamp(this.position.x, -halfW, halfW);
+    this.position.z = THREE.MathUtils.clamp(this.position.z, -halfW, halfW);
+  }
+
   private onControlChange() {
+    this.clampToSurfaceBound();
+
     const didntMove =
       this.point.x == this.position.x && this.point.y == this.position.z;
     if (didntMove) return;
