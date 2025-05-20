@@ -39,9 +39,9 @@ void main() {
   vec3 hit = pos + refracted * t;
 
   if (hit.y > -poolDepth) {
-    vNewPos = projectXZ(hit, refractedLight, -poolDepth);
+    vNewPos = projectXZ(hit, refractedLight, -poolDepth); // wall
   } else {
-    vNewPos = projectXZ(pos, refracted, -poolDepth);
+    vNewPos = projectXZ(pos, refracted, -poolDepth);      // floor
   }
 
   vOldPos = projectXZ(modelPos, refractedLight, -poolDepth);

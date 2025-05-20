@@ -74,7 +74,7 @@ export default class Model {
   /* ------------------------------------------------------------ */
   /**
    * Methods for updating walls & copings when there's node changes:
-   * onInsertNode, onRemoveNode, onMoveNode, updateCopingEnd
+   * onInsertNode, onRemoveNode, onMoveNode, updateCopingEnds
    */
   private onInsertNode(index: number) {
     const n = this.nodes.length;
@@ -102,9 +102,9 @@ export default class Model {
     this.walls.splice(i1, 0, newLastWall);
     this.root.add(newLastWall);
 
-    this.updateCopingEnd(i0);
-    this.updateCopingEnd(i1);
-    this.updateCopingEnd(i2);
+    this.updateCopingEnds(i0);
+    this.updateCopingEnds(i1);
+    this.updateCopingEnds(i2);
 
     this.validate();
   }
@@ -119,8 +119,8 @@ export default class Model {
     this.root.remove(thisWall);
     prevWall.update([prevNode, nextNode]);
 
-    this.updateCopingEnd(prev);
-    this.updateCopingEnd(index % n);
+    this.updateCopingEnds(prev);
+    this.updateCopingEnds(index % n);
 
     this.validate();
   }
@@ -137,9 +137,9 @@ export default class Model {
     wall0.update([this.nodes[i0], this.nodes[i1]]);
     wall1.update([this.nodes[i1], this.nodes[i2]]);
 
-    this.updateCopingEnd(i0);
-    this.updateCopingEnd(i1);
-    this.updateCopingEnd(i2);
+    this.updateCopingEnds(i0);
+    this.updateCopingEnds(i1);
+    this.updateCopingEnds(i2);
 
     this.validate();
   }
@@ -148,27 +148,29 @@ export default class Model {
    * Updating Coping's position & UV for outer edge vertices position & UV.
    *
    * When i-th node (p1) is updated, the previous coping (p0) and the next
-   * coping (p2) are affected. These 2 copings share one of their end's vertices
+   * coping (p2) are affected. These 2 copings share one of their end's vertice
    * (ps) and its position and UV are changed; the 2 remaining vertices (@) are
    * unchanged.
    *
    * Indices
-   * For coping-0 (p1-p0-@1-ps), ps is at index-3, whereas for coping-1
-   * (p2-p1-ps-@2), ps is at index-2.
+   * For coping-0 (p1-p0-@1-ps), ps is at index=3 for its quad, whereas for
+   * coping-1 (p3-p1-ps-@2), ps is at index-2.
    *
    * Position
    * ps := p1 + dh, where dh := normalize(DH(p2, p1) + DH(p1, p0))
    *
    * UV
-   * For dh1 := DH(p1, p0), dh2:= DH(p2, p1) and let theta be angle between dh1
-   * and dh2.
+   * For dh1 := DH(p1, p0), dh2:= DH(p2, p1) and let theta be an angle between
+   * dh1 and dh2.
    *
-   * For theta = 0, p0-p1-p2 is in line, and dh1 = dh2 = DH. The UV coordinate
-   * of ps coping-0 is (0, 1) at index = 3, whereas for coping-1 is (1, 1) at
-   * index = 2.
+   * For theta = 0, p0-p1-p2 is in line, and dh1 = dh2 = DH. Each UV coordinate
+   * of ps for coping-0 is (0, 1) at index-3, whereas for coping-1 is (1, 1) at
+   * index-2.
    *
-   * As theta increases, UV.x < 0 for coping-0, and UV.x > 0 for coping-1.
-   * As theta decreases, UV.x > 0 for coping-0, and UV.x < 0 for coping-1.
+   * As theta increases, it becomes *convex* shape in below figure.
+   *  - UV.x < 0 for coping-0, and UV.x > 0 for coping-1.
+   * As theta decreases, it becomes *concave* shape in below figure.
+   *  - UV.x > 0 for coping-0, and UV.x < 0 for coping-1.
    *
    *
    *  <Convex>                 <Concave>
@@ -183,6 +185,8 @@ export default class Model {
    *               \
    *
    *  <DH>
+   *  For theta between dh1 & dh2 being 90deg, angle(DH, dh1) = angle(DH, dh2)
+   *  = 45deg.
    *
    *          <dh2>   _<DH>
    *            |   _/
@@ -194,7 +198,7 @@ export default class Model {
    *            |
    *
    */
-  private updateCopingEnd(i: number) {
+  private updateCopingEnds(i: number) {
     const { nodes, walls } = this;
     const n = walls.length;
     const h = config.COPING_SIZE;

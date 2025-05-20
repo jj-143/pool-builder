@@ -25,7 +25,7 @@
  *
  * This class only handles updating its base (p0, p1): {@link Coping.updateBase}
  * Updating the position & UV of its ends (p2, p3) is handled by Model, since
- * it involves adjacent copings: {@link Model.updateCopingEnd}
+ * it involves adjacent copings: {@link Model.updateCopingEnds}
  */
 import * as THREE from "three";
 
